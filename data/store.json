@@ -1,0 +1,41 @@
+{
+  "users": [
+    {
+      "id": "168263e5-cf46-42ae-9482-935fe4952a18",
+      "email": "manager@ozona.fr",
+      "passwordHash": "$2a$10$Nb78nyCc58PiD.K5O9y/iux4mIT7rZz/FVJqQluOMsF3YevG/9TLq",
+      "discordId": null,
+      "discordName": null,
+      "role": "manager",
+      "createdAt": "2026-10-14T17:07:49.459Z"
+    },
+    {
+      "id": "5fcbe3af-d360-46bf-b0f5-42e250ec60d4",
+      "email": "client@ozona.fr",
+      "passwordHash": "$2a$10$w0hXj9E/FKM7dgJ2UMTSwucKMOaWqcyVCagx1ks1dV3skVyeMRy7y",
+      "discordId": "100000000000000001",
+      "discordName": "ClientOzona",
+      "role": "customer",
+      "createdAt": "2026-10-14T17:07:49.569Z"
+    }
+  ],
+  "licenses": [
+    {
+      "id": "3e2bbc67-6f68-4225-ad14-272d2a07af7d",
+      "key": "OZONA_0B2B117D_23C2_A1AD_E8B4_138862C4E864",
+      "plan": "lifetime",
+      "priceEur": 250,
+      "status": "active",
+      "userId": "5fcbe3af-d360-46bf-b0f5-42e250ec60d4",
+      "createdBy": "168263e5-cf46-42ae-9482-935fe4952a18",
+      "createdAt": "2026-10-14T17:10:12.272Z",
+      "redeemedAt": "2026-10-14T17:11:46.701Z",
+      "expiresAt": null,
+      "lockedIp": "::ffff:127.0.0.1",
+      "lastSeen": "2026-10-14T17:13:36.661Z",
+      "hostname": "Ozona Local",
+      "players": 3,
+      "note": null
+    }
+  ]
+}

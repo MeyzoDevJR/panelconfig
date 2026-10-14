@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ozona Panel</title>
+<style>
+  :root {
+    --bg: #090a0d; --side: #0e0f13; --card: #14151b; --line: rgba(255,255,255,.08);
+    --text: #f3f3f5; --muted: #8d9098; --faint: #5e616a;
+    --red: #dc1428; --red-2: #ff3b30; --green: #2fce73; --amber: #f5b942;
+    --radius: 12px; --side-w: 196px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: Inter, "Segoe UI", sans-serif; color: var(--text); font-size: 13px;
+    background: radial-gradient(900px 380px at 15% -10%, color-mix(in srgb, var(--red) 20%, transparent), transparent 58%), var(--bg);
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  svg { width: 15px; height: 15px; flex: 0 0 15px; }
+  .gate { min-height: 100vh; display: grid; place-items: center; padding: 28px 16px; }
+  .gate-card {
+    width: min(400px, 100%); background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 22px 20px 16px; box-shadow: 0 24px 70px rgba(0,0,0,.38);
+    animation: rise .28s ease;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .mark {
+    width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+    background: linear-gradient(160deg, var(--red-2), #7a0c08);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 16%, transparent);
+    animation: pulse 2.8s ease-in-out infinite;
+  }
+  .brand strong { display: block; font-size: 13px; }
+  .brand span, .hint, .sub { color: var(--muted); }
+  .brand span { font-size: 10px; }
+  h1 { font-size: 18px; margin: 14px 0 4px; letter-spacing: -.02em; }
+  .sub { margin: 0 0 12px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .tabs button, .btn, .btn-line, .ghost, .nav {
+    border-radius: 8px; border: 1px solid var(--line); background: #1b1d24;
+  }
+  .tabs button { padding: 7px; background: transparent; }
+  .tabs button.on { background: #1c1e25; color: white; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field span { color: var(--muted); font-size: 11px; }
+  .field input, .field select {
+    width: 100%; background: #0d0e12; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; outline: none;
+  }
+  .field input:focus, .field select:focus, .search input:focus { border-color: color-mix(in srgb, var(--red) 70%, white); }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .field.full { grid-column: 1 / -1; }
+  .stack-form { display: flex; flex-direction: column; gap: 8px; }
+  .error { color: #ff8d86; font-size: 12px; min-height: 16px; margin: 2px 0 0; }
+  .btn, .btn-line { padding: 8px 10px; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.primary, .btn-primary { width: 100%; justify-content: center; background: linear-gradient(180deg, var(--red-2), #9d120c); border-color: transparent; color: white; font-weight: 700; }
+  .btn-line { background: transparent; }
+  .btn:active, .nav:active, .icon-btn:active { transform: scale(.98); }
+  .switch { color: var(--muted); font-size: 12px; margin: 12px 0 0; }
+  .switch button { border: 0; background: transparent; color: white; font-weight: 700; padding: 0; }
+  .app { display: flex; min-height: 100vh; }
+  .side {
+    width: var(--side-w); flex: 0 0 var(--side-w); background: var(--side); border-right: 1px solid var(--line);
+    padding: 14px 10px 12px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+  }
+  .nav-label { margin: 10px 8px 6px; color: var(--faint); font-size: 10px; letter-spacing: .14em; font-weight: 700; }
+  .nav { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: transparent; color: #c5c7cd; text-align: left; padding: 7px 8px; }
+  .nav.active, .nav:hover, .ghost:hover { background: #1c1e25; color: white; }
+  .nav.active svg { color: var(--red-2); }
+  .foot { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
+  .ghost { display: flex; align-items: center; gap: 8px; background: transparent; border: 0; color: #b7b9c0; text-align: left; padding: 7px 8px; }
+  .badge { margin: 6px 8px 0; width: fit-content; border: 1px solid rgba(47,206,115,.4); color: var(--green); border-radius: 999px; font-size: 9px; letter-spacing: .12em; padding: 3px 7px; font-weight: 700; }
+  .main, .content, .grid, .stack, .card, .fields, .field { min-width: 0; }
+  .main { flex: 1; display: flex; flex-direction: column; }
+  .top { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+  .crumb { color: var(--muted); min-width: 150px; }
+  .crumb b { color: var(--text); font-weight: 600; }
+  .search { flex: 1; display: flex; justify-content: center; }
+  .search input { width: min(280px, 100%); background: #121318; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; outline: none; }
+  .avatar { width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: linear-gradient(160deg, var(--red-2), #6e0d09); }
+  .content { padding: 16px 18px 78px; animation: rise .28s ease; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(230px, .72fr); gap: 10px; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .card { background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 42%), var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .card h2 { margin: 0; font-size: 14px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: #101116; border-radius: 10px; padding: 8px 10px; }
+  .stat small, .muted { display: block; color: var(--muted); font-size: 11px; }
+  .stat b { font-size: 16px; }
+  .ok { color: var(--green); } .warn { color: var(--amber); }
+  .preview-logo, .banner { border: 1px solid var(--line); border-radius: 10px; background: #0d0e12; overflow: hidden; }
+  .preview-logo { height: 64px; display: grid; place-items: center; padding: 8px; }
+  .preview-logo img { max-height: 48px; object-fit: contain; }
+  .banner { height: 72px; display: flex; align-items: flex-end; padding: 8px 10px; background-size: cover; background-position: center; position: relative; }
+  .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(0,0,0,.55)); }
+  .banner b, .banner span { position: relative; z-index: 1; }
+  .banner span { display: block; color: #ddd; font-size: 11px; }
+  .menu-mock { margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #101116; }
+  .menu-item { padding: 6px 10px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .menu-item.on { background: color-mix(in srgb, var(--red) 28%, #15161c); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pnj, .license {
+    display: grid; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: #101116; margin-bottom: 6px;
+  }
+  .pnj { grid-template-columns: 28px minmax(0, 1fr) auto; align-items: start; }
+  .pnj.off { opacity: .45; }
+  .dot { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--red) 18%, #15161c); color: var(--red-2); }
+  .key { font-family: Consolas, monospace; font-size: 12px; word-break: break-all; }
+  .tag { border-radius: 999px; padding: 2px 7px; font-size: 11px; background: #241416; color: #ffb4ae; }
+  .tag.live { background: rgba(47,206,115,.12); color: var(--green); }
+  .icon-btn { border: 0; background: transparent; color: var(--muted); padding: 4px; border-radius: 6px; }
+  .icon-btn:hover { background: #22242c; color: white; }
+  .street { height: 46px; border-radius: 10px; position: relative; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--line); background: linear-gradient(#1a1c22, #1a1c22) center/100% 2px no-repeat, #101116; }
+  .walker { position: absolute; bottom: 8px; width: 10px; height: 16px; border-radius: 4px 4px 2px 2px; background: var(--red-2); animation: walk 7s linear infinite; }
+  .walker::before, .walker::after { content: ""; position: absolute; bottom: -6px; width: 3px; height: 7px; background: #f3f3f5; border-radius: 2px; animation: step .35s ease-in-out infinite alternate; }
+  .walker::after { right: 0; animation-delay: .18s; }
+  .swatch { height: 34px; padding: 0; border: 0; background: transparent; }
+  .bar {
+    position: fixed; z-index: 4; left: calc(var(--side-w) + 12px); right: 12px; bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    background: rgba(14,15,19,.94); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; backdrop-filter: blur(8px);
+  }
+  .bar[hidden] { display: none; }
+  .toast { position: fixed; right: 16px; bottom: 64px; background: #17181f; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; opacity: 0; transform: translateY(8px); transition: .25s ease; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--red) 8%, transparent); } }
+  @keyframes walk { from { left: -16px; } to { left: 100%; } }
+  @keyframes step { from { transform: rotate(16deg); } to { transform: rotate(-16deg); } }
+  @media (max-width: 860px) {
+    .side { display: none; } .grid, .fields { grid-template-columns: 1fr; } .bar { left: 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+const I = {
+  logo: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>',
+  dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><path d="M7 7h.01M7 17h.01"/></svg>',
+  paint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 8 8-9 9H5v-6z"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg>',
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="m11 12 10-9M16 8l3 3"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.3 2A3.5 3.5 0 0 0 7 18z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v6c0 5 3.2 7.6 7 9 3.8-1.4 7-4 7-9V6z"/></svg>',
+  job: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21h4"/></svg>',
+  vol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9a5 5 0 0 1 0 6"/></svg>',
+  mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 5M21 9l-5 5"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6H5v12h4M10 12h10M16 8l4 4-4 4"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg>'
+};
+const WEATHER = ["EXTRASUNNY","CLEAR","CLOUDS","SMOG","FOGGY","OVERCAST","RAIN","THUNDER","CLEARING","NEUTRAL","SNOW","XMAS","HALLOWEEN"];
+const ANIMS = ["WORLD_HUMAN_CLIPBOARD","WORLD_HUMAN_COP_IDLES","WORLD_HUMAN_GUARD_STAND","WORLD_HUMAN_STAND_IMPATIENT","CODE_HUMAN_MEDIC_TIME_OF_DEATH"];
+const PLANS = { "7j": ["7 jours", 7], "30j": ["30 jours", 30], "3m": ["3 mois", 90], "1an": ["1 an", 365], lifetime: ["LifeTime", null] };
+const DBKEY = "ozona-panel-final";
+const MANAGER_NAME = "ozona";
+const MANAGER_PASS = "OzonaManager250";
+const app = document.getElementById("app");
+let db, page = "dash", gate = "client", authError = "", query = "", audio;
+
+function sha256(s) {
+  const r = (n, b) => (n >>> b) | (n << (32 - b));
+  const m = new TextEncoder().encode(s);
+  const bits = m.length * 8;
+  const buf = new Uint8Array(((m.length + 9 + 63) >> 6) << 6);
+  buf.set(m); buf[m.length] = 0x80;
+  const view = new DataView(buf.buffer);
+  view.setUint32(buf.length - 4, bits, false);
+  const k = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+  const w = new Uint32Array(64);
+  for (let i = 0; i < buf.length; i += 64) {
+    for (let t = 0; t < 16; t++) w[t] = view.getUint32(i + t * 4, false);
+    for (let t = 16; t < 64; t++) {
+      const s0 = r(w[t-15],7) ^ r(w[t-15],18) ^ (w[t-15] >>> 3);
+      const s1 = r(w[t-2],17) ^ r(w[t-2],19) ^ (w[t-2] >>> 10);
+      w[t] = (w[t-16] + s0 + w[t-7] + s1) >>> 0;
+    }
+    let a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+    for (let t = 0; t < 64; t++) {
+      const S1 = r(e,6) ^ r(e,11) ^ r(e,25);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + k[t] + w[t]) >>> 0;
+      const S0 = r(a,2) ^ r(a,13) ^ r(a,22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+    }
+    h0=h0+a>>>0; h1=h1+b>>>0; h2=h2+c>>>0; h3=h3+d>>>0; h4=h4+e>>>0; h5=h5+f>>>0; h6=h6+g>>>0; h7=h7+h>>>0;
+  }
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map((x) => x.toString(16).padStart(8, "0")).join("");
+}
+const passHash = (value) => sha256("ozona|" + value);
+function fresh() {
+  return {
+    manager: { username: MANAGER_NAME, pass: passHash(MANAGER_PASS) },
+    users: [],
+    session: null,
+    licenses: [{ id: 1, key: "OZONA_0B2B117D_23C2_A1AD_E8B4_138862C4E864", plan: "lifetime", status: "available", email: "", ip: "" }],
+    config: {
+      nom: "GtaNew", cfx: "GtaNew", slots: 128, discord: "https://discord.gg/gtanew", discordApi: "1472612252023787650",
+      boutique: "https://GtaNew.tebex.io", guide: "https://discord.gg/gtanew", showDiscord: true, showGuide: true,
+      logo: "https://r2.fivemanage.com/wPwRsBgX6HFIhcSuTWKZH/logo.png", banner: "", style: "advanced", size: "small",
+      color: "#dc1428", marker: 21, paycheck: 50, paycheckMin: 15, vip: "VIP", startMoney: 500,
+      weatherSouth: "EXTRASUNNY", weatherNorth: "CLOUDS", weatherDynamic: true, hour: 21,
+      drugsbuilder: true, atm: true, fishing: true, keys: false, lockpick: false, fiveguard: false, showIp: false, notifJobs: true,
+      logConnect: "", logDeath: "", logIcon: "https://r2.fivemanage.com/IyifgspXaypiEVgDZKsgY/5(1).png", sound: true,
+      jobs: [
+        { id: 1, label: "Police", open: true }, { id: 2, label: "E.M.S", open: true }, { id: 3, label: "Ozona Customs", open: true },
+        { id: 4, label: "Concession", open: true }, { id: 5, label: "LTD", open: false }, { id: 6, label: "Burgershot", open: true }
+      ],
+      pnj: [
+        { id: 1, name: "Accueil Pillbox", model: "s_m_m_doctor_01", x: 298.2, y: -584.4, z: 43.3, h: 70, anim: ANIMS[4], on: true },
+        { id: 2, name: "Commissariat", model: "s_m_y_cop_01", x: 441.1, y: -981.8, z: 30.7, h: 90, anim: ANIMS[1], on: true },
+        { id: 3, name: "Concession", model: "s_m_m_autoshop_01", x: -33.7, y: -1102, z: 26.4, h: 70, anim: ANIMS[0], on: true },
+        { id: 4, name: "Ozona Customs", model: "s_m_m_autoshop_02", x: -347.4, y: -133.3, z: 39, h: 250, anim: ANIMS[3], on: true }
+      ]
+    }
+  };
+}
+function load() {
+  const base = fresh();
+  try {
+    const saved = JSON.parse(localStorage.getItem(DBKEY) || "null");
+    if (!saved || !saved.manager) return base;
+    saved.config = Object.assign(base.config, saved.config || {});
+    saved.users = saved.users || [];
+    saved.licenses = saved.licenses || base.licenses;
+    return saved;
+  } catch { return base; }
+}
+function persist(message) {
+  localStorage.setItem(DBKEY, JSON.stringify(db));
+  const note = document.getElementById("saved");
+  if (note) note.textContent = "Enregistré à l'instant.";
+  if (message) { toast(message); sfx("save"); }
+}
+function esc(value) { return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function manager() { return db.session && db.session.role === "manager"; }
+function client() { return db.users.find((user) => db.session && user.email === db.session.email); }
+function toast(text) {
+  const el = document.getElementById("toast");
+  el.textContent = text; el.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 1600);
+}
+function sfx(kind) {
+  if (!db.config.sound) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  audio = audio || new Ctx();
+  if (audio.state === "suspended") audio.resume();
+  const now = audio.currentTime;
+  const notes = kind === "save" ? [523, 659, 784] : kind === "del" ? [180] : [640];
+  notes.forEach((freq, i) => {
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = "triangle"; osc.frequency.value = freq;
+    const at = now + i * 0.07;
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(0.03, at + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.14);
+    osc.connect(gain); gain.connect(audio.destination); osc.start(at); osc.stop(at + 0.16);
+  });
+}
+function paint() {
+  document.documentElement.style.setProperty("--red", db.config.color || "#dc1428");
+}
+function bannerStyle() {
+  const c = db.config;
+  return c.banner ? `background-image:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.5)),url('${esc(c.banner)}')` : `background-image:linear-gradient(120deg, ${c.color}, #1a0507 72%)`;
+}
+function field(label, key, type, extra) {
+  const value = db.config[key];
+  if (type === "select") return `<label class="field"><span>${label}</span><select data-k="${key}">${extra.map((item) => `<option ${value === item ? "selected" : ""}>${item}</option>`).join("")}</select></label>`;
+  if (type === "bool") return `<label class="field"><span>${label}</span><select data-k="${key}" data-bool="1"><option value="true" ${value ? "selected" : ""}>Activé</option><option value="false" ${value ? "" : "selected"}>Désactivé</option></select></label>`;
+  const kind = type === "color" ? "color" : type || "text";
+  return `<label class="field"><span>${label}</span><input data-k="${key}" type="${kind}" ${kind === "color" ? "class='swatch'" : ""} value="${esc(value)}"></label>`;
+}
+function card(title, hint, body) { return `<article class="card"><div class="head"><div><h2>${title}</h2>${hint ? `<p class="hint">${hint}</p>` : ""}</div></div>${body}</article>`; }
+function street() {
+  return `<div class="street">${db.config.pnj.filter((item) => item.on).slice(0, 6).map((item, index) => `<span class="walker" style="animation-delay:${index * -1.1}s"></span>`).join("")}</div>`;
+}
+
+function render() {
+  paint();
+  app.innerHTML = db.session ? shell() : auth();
+}
+function auth() {
+  const managerGate = gate === "manager";
+  const register = gate === "register";
+  const title = register ? "Créer un compte" : managerGate ? "Connexion manager" : "Connexion";
+  const sub = register ? "E-mail et mot de passe. Le compte sert à récupérer ta licence." : managerGate ? "Réservé au propriétaire du panel." : "Entre avec l'e-mail du compte client.";
+  const first = managerGate && db.manager.pass === passHash(MANAGER_PASS) ? `<p class="hint">Premier accès : ${MANAGER_NAME} / ${MANAGER_PASS}</p>` : "";
+  return `<div class="gate"><form class="gate-card" id="auth">
+    <div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>Panel</span></div></div>
+    <h1>${title}</h1><p class="sub">${sub}</p>
+    ${register ? "" : `<div class="tabs"><button type="button" data-gate="client" class="${managerGate ? "" : "on"}">Client</button><button type="button" data-gate="manager" class="${managerGate ? "on" : ""}">Manager</button></div>`}
+    <div class="stack-form">
+      <label class="field"><span>${register || !managerGate ? "E-mail" : "Identifiant"}</span><input name="login" type="${register || !managerGate ? "email" : "text"}" autocomplete="${managerGate ? "username" : "email"}" required></label>
+      <label class="field"><span>Mot de passe</span><input name="pass" type="password" minlength="8" autocomplete="${register ? "new-password" : "current-password"}" required></label>
+      ${register ? `<label class="field"><span>Confirmer</span><input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label>` : ""}
+      <p class="error">${esc(authError)}</p>
+      ${first}
+      <button class="btn primary" type="submit">${register ? "Créer le compte" : "Se connecter"}</button>
+    </div>
+    <p class="switch">${register ? "Déjà inscrit ?" : "Pas encore de compte ?"} <button type="button" data-gate="${register ? "client" : "register"}">${register ? "Connexion" : "Créer un compte"}</button></p>
+  </form></div>`;
+}
+function links() {
+  if (manager()) return [["dash","Tableau",I.dash],["server","Serveur",I.server],["look","Visuel",I.paint],["jobs","Métiers",I.job],["pnj","PNJ",I.users],["weather","Météo",I.cloud],["system","Système",I.shield],["logs","Logs",I.bell],["keys","Clés",I.key],["users","Clients",I.users],["account","Mon compte",I.logo]];
+  return [["dash","Tableau",I.dash],["license","Ma licence",I.key],["account","Mon compte",I.logo]];
+}
+function shell() {
+  const items = links();
+  const label = (items.find((item) => item[0] === page) || items[0])[1];
+  const who = manager() ? db.manager.username : db.session.email;
+  const groups = manager() ? { 0: "GÉNÉRAL", 2: "VILLE", 6: "SYSTÈME", 8: "COMPTE" } : { 0: "GÉNÉRAL", 2: "COMPTE" };
+  return `<div class="app"><aside class="side"><div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>${manager() ? "Manager" : "Client"}</span></div></div>
+    ${items.map((item, index) => `${groups[index] ? `<div class="nav-label">${groups[index]}</div>` : ""}<button class="nav${page === item[0] ? " active" : ""}" data-page="${item[0]}" type="button">${item[2]}${item[1]}</button>`).join("")}
+    <div class="foot"><button class="ghost" data-act="sound" type="button">${db.config.sound ? I.vol : I.mute} Sons ${db.config.sound ? "activés" : "coupés"}</button><button class="ghost" data-act="logout" type="button">${I.out} Déconnexion</button><div class="badge">PROTECTED</div></div></aside>
+    <section class="main"><header class="top"><div class="crumb">Ozona / <b>${label}</b></div><div class="search"><input id="q" placeholder="Chercher" value="${esc(query)}"></div><div class="avatar" title="${esc(who)}">${esc(who.slice(0, 1).toUpperCase())}</div></header>
+    <div class="content">${view()}</div>
+    <div class="bar" ${["server","look","jobs","pnj","weather","system","logs"].includes(page) ? "" : "hidden"}><span class="hint" id="saved">Les réglages restent enregistrés dans ce navigateur.</span><div class="row"><button class="btn-line" data-act="export" type="button">Exporter</button><button class="btn-line" data-act="lua" type="button">Copier Lua</button><button class="btn primary" data-act="save" type="button" style="width:auto">Enregistrer</button></div></div>
+    </section></div>`;
+}
+function view() {
+  const pages = { dash, server, look, jobs, pnj, weather, system, logs, keys, users, account, license };
+  return (pages[page] || dash)();
+}
+function dash() {
+  const c = db.config;
+  if (!manager()) {
+    const mine = db.licenses.filter((item) => item.email === db.session.email && item.status === "active");
+    return `<h1>${esc(c.nom)}</h1><p class="sub">Ton espace client.</p><div class="stats"><div class="stat"><small>Licences actives</small><b>${mine.length}</b></div><div class="stat"><small>Statut</small><b class="${mine.length ? "ok" : "warn"}">${mine.length ? "Actif" : "En attente"}</b></div></div>`;
+  }
+  const open = c.jobs.filter((job) => job.open).length;
+  return `<h1>${esc(c.nom)}</h1><p class="sub">Vue d'ensemble du serveur.</p><div class="grid"><div class="stack">${card("Ville", `${c.pnj.filter((item) => item.on).length} PNJ actifs`, street() + c.pnj.slice(0, 3).map((item) => `<div class="pnj${item.on ? "" : " off"}"><div class="dot">${I.pin}</div><div><strong>${esc(item.name)}</strong><small class="muted">${esc(item.model)}</small></div></div>`).join(""))}</div>
+    <div class="stack">${card("Serveur", "", `<div class="preview-logo"><img src="${esc(c.logo)}" alt="Logo"></div><div class="stats" style="margin-top:8px"><div class="stat"><small>Clients</small><b>${db.users.length}</b></div><div class="stat"><small>Métiers ouverts</small><b>${open}</b></div><div class="stat"><small>Slots</small><b>${c.slots}</b></div><div class="stat"><small>Clés actives</small><b>${db.licenses.filter((item) => item.status === "active").length}</b></div></div>`)}
+    ${card("F5", "", `<div class="banner" style="${bannerStyle()}"><div><b>${esc(c.nom)}</b><span>Menu personnel</span></div></div>`)}</div></div>`;
+}
+function server() {
+  return `<h1>Serveur</h1><p class="sub">Identité, Discord et boutique.</p>${card("", "", `<div class="fields">${field("Nom","nom")}${field("Nom CFX","cfx")}${field("Slots","slots","number")}${field("Argent de départ","startMoney","number")}${field("Discord","discord","url")}${field("ID application Discord","discordApi")}${field("Boutique","boutique","url")}${field("Guide","guide","url")}${field("Bouton Discord","showDiscord","bool")}${field("Bouton guide","showGuide","bool")}</div>`)}`;
+}
+function look() {
+  const c = db.config;
+  return `<h1>Visuel</h1><p class="sub">Logo, bannière F5 et couleur. Colle une URL CDN.</p><div class="grid"><div>${card("", "", `<div class="fields">${field("Logo CDN","logo","url")}${field("Bannière F5 CDN","banner","url")}${field("Couleur","color","color")}${field("HEX","color")}${field("Style menu","style","select",["normal","advanced","flashfa"])}${field("Taille","size","select",["small","big"])}${field("Marker","marker","number")}</div>`)}</div>
+    <div>${card("Aperçu F5", `${esc(c.style)} · ${esc(c.size)}`, `<div class="preview-logo"><img alt="Logo" src="${esc(c.logo)}"></div><div class="menu-mock"><div class="banner" style="${bannerStyle()}"><div><b>${esc(c.nom)}</b><span>Menu personnel</span></div></div><div class="menu-item on"><span>Inventaire</span><span>›</span></div><div class="menu-item"><span>Portefeuille</span><span>›</span></div></div>`)}</div></div>`;
+}
+function jobs() {
+  const q = query.toLowerCase();
+  const list = db.config.jobs.filter((job) => job.label.toLowerCase().includes(q));
+  return `<h1>Métiers</h1><p class="sub">Ouverture et nom affiché en ville.</p><div id="list">${list.map((job) => `<article class="pnj"><div class="dot">${I.job}</div><label class="field"><span>Nom</span><input data-job="${job.id}" value="${esc(job.label)}"></label><label class="field"><span>État</span><select data-job-open="${job.id}"><option value="true" ${job.open ? "selected" : ""}>Ouvert</option><option value="false" ${job.open ? "" : "selected"}>Fermé</option></select></label></article>`).join("") || '<p class="hint">Aucun métier.</p>'}</div>`;
+}
+function pedCard(item) {
+  return `<article class="pnj${item.on ? "" : " off"}" data-id="${item.id}"><div class="dot">${I.pin}</div><div class="fields">
+    <label class="field"><span>Nom</span><input data-p="name" value="${esc(item.name)}"></label>
+    <label class="field"><span>Modèle</span><input data-p="model" value="${esc(item.model)}"></label>
+    ${["x","y","z","h"].map((axis) => `<label class="field"><span>${axis.toUpperCase()}</span><input data-p="${axis}" type="number" step="0.1" value="${item[axis]}"></label>`).join("")}
+    <label class="field full"><span>Animation</span><select data-p="anim">${ANIMS.map((anim) => `<option ${item.anim === anim ? "selected" : ""}>${anim}</option>`).join("")}</select></label>
+  </div><div><button class="icon-btn" data-act="ped-toggle" data-id="${item.id}" type="button">${item.on ? I.vol : I.mute}</button><button class="icon-btn" data-act="ped-del" data-id="${item.id}" type="button">${I.trash}</button></div></article>`;
+}
+function pnj() {
+  const q = query.toLowerCase();
+  const list = db.config.pnj.filter((item) => `${item.name} ${item.model}`.toLowerCase().includes(q));
+  return `<h1>PNJ en ville</h1><p class="sub">Modèle, position et animation.</p>${street()}<div class="head"><h2>${list.length} points</h2><button class="btn primary" data-act="add-ped" type="button" style="width:auto">Ajouter</button></div><div id="list">${list.map(pedCard).join("")}</div>`;
+}
+function weather() {
+  return `<h1>Météo</h1><p class="sub">Sud, nord et heure du serveur.</p>${card("", "", `<div class="fields">${field("Sud","weatherSouth","select",WEATHER)}${field("Nord","weatherNorth","select",WEATHER)}${field("Météo dynamique","weatherDynamic","bool")}${field("Heure","hour","number")}</div>`)}`;
+}
+function system() {
+  return `<h1>Système</h1><p class="sub">Options du cœur OzonaProject.</p>${card("", "", `<div class="fields">${field("Drugsbuilder","drugsbuilder","bool")}${field("Pêche","fishing","bool")}${field("Braquage ATM","atm","bool")}${field("Clés véhicule en item","keys","bool")}${field("Crochetage","lockpick","bool")}${field("FiveGuard","fiveguard","bool")}${field("IP dans la console","showIp","bool")}${field("Notif métiers","notifJobs","bool")}</div>`)}`;
+}
+function logs() {
+  return `<h1>Logs</h1><p class="sub">Webhooks Discord et icône CDN.</p>${card("", "", `<div class="fields">${field("Connexion","logConnect","url")}${field("Mort","logDeath","url")}${field("Icône CDN","logIcon","url","")}</div>`)}`;
+}
+function licenseCard(item, wide) {
+  const plan = PLANS[item.plan] || [item.plan];
+  return `<article class="license"><div class="head"><div><strong>${esc(plan[0])}</strong> <span class="tag ${item.status === "active" ? "live" : ""}">${item.status === "active" ? "Active" : item.status === "revoked" ? "Révoquée" : "Disponible"}</span><div class="key">${esc(item.key)}</div><small class="muted">${item.email ? esc(item.email) : "Non attribuée"}${item.plan === "lifetime" ? " · 250 €" : ""}</small></div>
+    <div class="row"><button class="btn-line" data-act="copy" data-key="${esc(item.key)}" type="button">Copier</button>${wide && item.status !== "revoked" ? `<button class="btn-line" data-act="revoke" data-id="${item.id}" type="button">Révoquer</button>` : ""}</div></div></article>`;
+}
+function keys() {
+  return `<h1>Clés</h1><p class="sub">7j, 30j, 3 mois, 1 an ou LifeTime à 250 €. Le client doit déjà avoir un compte.</p>
+    <form id="new-key" class="card"><div class="fields"><label class="field"><span>Durée</span><select name="plan">${Object.entries(PLANS).map(([id, info]) => `<option value="${id}">${info[0]}${id === "lifetime" ? " · 250 €" : ""}</option>`).join("")}</select></label><label class="field"><span>Attribuer à</span><input name="email" type="email" placeholder="client@email.com"></label></div><button class="btn primary" style="width:auto;margin-top:8px" type="submit">Générer</button></form>
+    <div style="height:10px"></div>${db.licenses.map((item) => licenseCard(item, true)).join("")}`;
+}
+function users() {
+  const q = query.toLowerCase();
+  const list = db.users.filter((user) => user.email.includes(q));
+  return `<h1>Clients</h1><p class="sub">${db.users.length} compte${db.users.length > 1 ? "s" : ""}.</p><div id="list">${list.map((user) => `<article class="license"><strong>${esc(user.email)}</strong><small class="muted">${db.licenses.filter((item) => item.email === user.email && item.status === "active").length} licence active</small></article>`).join("") || '<p class="hint">Aucun client pour le moment.</p>'}</div>`;
+}
+function license() {
+  const mine = db.licenses.filter((item) => item.email === db.session.email);
+  return `<h1>Ma licence</h1><p class="sub">Colle la clé reçue du manager.</p><form id="redeem" class="card"><label class="field"><span>Clé</span><input name="key" placeholder="OZONA_..." required></label><button class="btn primary" style="width:auto;margin-top:8px" type="submit">Activer</button></form><div style="height:10px"></div>${mine.map((item) => licenseCard(item, false)).join("") || '<p class="hint">Aucune licence sur ce compte.</p>'}`;
+}
+function account() {
+  const who = manager() ? db.manager.username : db.session.email;
+  return `<h1>Mon compte</h1><p class="sub">${manager() ? "Identifiant" : "E-mail"} : ${esc(who)}</p>${card("Mot de passe", "", `<form id="pass" class="stack-form"><label class="field"><span>Mot de passe actuel</span><input name="current" type="password" required></label><label class="field"><span>Nouveau</span><input name="next" type="password" minlength="8" required></label><button class="btn primary" style="width:auto" type="submit">Mettre à jour</button></form>`)}`;
+}
+function makeKey() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+  return `OZONA_${hex.slice(0,8)}_${hex.slice(8,12)}_${hex.slice(12,16)}_${hex.slice(16,20)}_${hex.slice(20)}`;
+}
+function submitAuth(form) {
+  const id = form.login.value.trim();
+  const pass = form.pass.value;
+  authError = "";
+  if (pass.length < 8) { authError = "8 caractères minimum."; render(); return; }
+  if (gate === "register") {
+    const email = id.toLowerCase();
+    if (!email.includes("@")) { authError = "E-mail invalide."; render(); return; }
+    if (form.confirm.value !== pass) { authError = "Les mots de passe ne correspondent pas."; render(); return; }
+    if (db.users.some((user) => user.email === email)) { authError = "Cet e-mail est déjà utilisé."; render(); return; }
+    db.users.push({ email, pass: passHash(pass) });
+    db.session = { role: "client", email };
+    page = "dash"; persist(); sfx("save"); render(); return;
+  }
+  if (gate === "manager") {
+    if (id.toLowerCase() !== db.manager.username || passHash(pass) !== db.manager.pass) { authError = "Identifiant ou mot de passe incorrect."; sfx("del"); render(); return; }
+    db.session = { role: "manager" };
+  } else {
+    const email = id.toLowerCase();
+    const user = db.users.find((item) => item.email === email);
+    if (!user || user.pass !== passHash(pass)) { authError = "E-mail ou mot de passe incorrect."; sfx("del"); render(); return; }
+    db.session = { role: "client", email };
+  }
+  page = "dash"; persist(); sfx("nav"); render();
+}
+function luaText() {
+  const c = db.config;
+  const hex = c.color.replace("#", "");
+  const full = hex.length === 3 ? hex.split("").map((ch) => ch + ch).join("") : hex;
+  const n = parseInt(full, 16) || 0;
+  return [`ConfigServ.nom = "${c.nom}"`,`ConfigServ.serverCfx = "${c.cfx}"`,`ConfigServ.maxSlots = ${Number(c.slots)}`,`ConfigServ.urldiscord = "${c.discord}"`,`ConfigServ.urlBoutique = "${c.boutique}"`,`ConfigServ.StaffInfo.logoUrl = "${c.logo}"`,`ConfigServ.DefaultMenuStyle = "${c.style}"`,`ConfigServ.DefaultMenuSize = "${c.size}"`,`ConfigServ.Color.HEX = "${c.color}"`,`ConfigServ.Color.R = ${(n >> 16) & 255}`,`ConfigServ.Color.G = ${(n >> 8) & 255}`,`ConfigServ.Color.B = ${n & 255}`,`ConfigServ.PayCheck = ${Number(c.paycheck)}`,`ConfigServ.NomDuVIP = "${c.vip}"`,`ConfigServ.drugsbuilder = ${c.drugsbuilder}`,`ConfigServ.Fiveguard = ${c.fiveguard}`].join("\n");
+}
+document.body.addEventListener("click", (event) => {
+  const gateBtn = event.target.closest("[data-gate]");
+  if (gateBtn) { gate = gateBtn.dataset.gate; authError = ""; sfx("nav"); render(); return; }
+  const nav = event.target.closest("[data-page]");
+  if (nav) { page = nav.dataset.page; sfx("nav"); render(); return; }
+  const act = event.target.closest("[data-act]");
+  if (!act) return;
+  const id = Number(act.dataset.id);
+  if (act.dataset.act === "logout") { db.session = null; page = "dash"; gate = "client"; authError = ""; persist(); render(); return; }
+  if (act.dataset.act === "sound") { db.config.sound = !db.config.sound; persist(); sfx("nav"); render(); return; }
+  if (act.dataset.act === "save") { persist("Configuration enregistrée"); return; }
+  if (act.dataset.act === "export") {
+    const blob = new Blob([JSON.stringify(db.config, null, 2)], { type: "application/json" });
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "ozona-config.json"; link.click(); sfx("save"); return;
+  }
+  if (act.dataset.act === "lua") { navigator.clipboard.writeText(luaText()); toast("Lua copié"); sfx("save"); return; }
+  if (act.dataset.act === "copy") { navigator.clipboard.writeText(act.dataset.key); toast("Clé copiée"); sfx("nav"); return; }
+  if (act.dataset.act === "add-ped") {
+    db.config.pnj.push({ id: Date.now(), name: "Nouveau PNJ", model: "a_m_y_business_01", x: 215.7, y: -810.2, z: 30.7, h: 160, anim: ANIMS[0], on: true });
+    sfx("nav"); render(); return;
+  }
+  if (act.dataset.act === "ped-del") { db.config.pnj = db.config.pnj.filter((item) => item.id !== id); sfx("del"); render(); return; }
+  if (act.dataset.act === "ped-toggle") { const item = db.config.pnj.find((entry) => entry.id === id); item.on = !item.on; sfx("nav"); render(); return; }
+  if (act.dataset.act === "revoke") { const item = db.licenses.find((entry) => entry.id === id); item.status = "revoked"; persist("Clé révoquée"); render(); }
+});
+document.body.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const form = event.target;
+  if (form.id === "auth") return submitAuth(form);
+  if (form.id === "new-key") {
+    const email = form.email.value.trim().toLowerCase();
+    if (email && !db.users.some((user) => user.email === email)) { toast("Ce client n'a pas de compte"); sfx("del"); return; }
+    db.licenses.unshift({ id: Date.now(), key: makeKey(), plan: form.plan.value, status: email ? "active" : "available", email, ip: "" });
+    persist("Clé générée"); render(); return;
+  }
+  if (form.id === "redeem") {
+    const key = form.key.value.trim();
+    const item = db.licenses.find((entry) => entry.key === key);
+    if (!item || item.status === "revoked") { toast("Clé invalide"); sfx("del"); return; }
+    if (item.email && item.email !== db.session.email) { toast("Cette clé est attribuée à un autre compte"); sfx("del"); return; }
+    item.email = db.session.email; item.status = "active"; persist("Licence activée"); render(); return;
+  }
+  if (form.id === "pass") {
+    const current = passHash(form.current.value);
+    const next = form.next.value;
+    if (next.length < 8) { toast("8 caractères minimum"); return; }
+    if (manager()) {
+      if (current !== db.manager.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
+      db.manager.pass = passHash(next);
+    } else {
+      const user = client();
+      if (!user || current !== user.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
+      user.pass = passHash(next);
+    }
+    persist("Mot de passe mis à jour");
+  }
+});
+document.body.addEventListener("input", onEdit);
+document.body.addEventListener("change", onEdit);
+function onEdit(event) {
+  const input = event.target;
+  if (input.id === "q") {
+    query = input.value;
+    const list = document.getElementById("list");
+    if (!list) return;
+    const html = page === "pnj" ? pnjList() : page === "jobs" ? jobs().match(/<div id="list">([\s\S]*)<\/div>$/)?.[1] || "" : page === "users" ? users().match(/<div id="list">([\s\S]*)<\/div>$/)?.[1] || "" : "";
+    if (page === "pnj") list.innerHTML = pnjList();
+    else list.innerHTML = html;
+    return;
+  }
+  if (input.dataset.k) {
+    db.config[input.dataset.k] = input.dataset.bool ? input.value === "true" : input.type === "number" ? Number(input.value) : input.value;
+    if (["color","nom","logo","banner"].includes(input.dataset.k)) {
+      paint();
+      document.querySelectorAll(".banner").forEach((el) => el.setAttribute("style", bannerStyle()));
+      document.querySelectorAll(".banner b").forEach((el) => { el.textContent = db.config.nom; });
+      document.querySelectorAll(".preview-logo img").forEach((img) => { if (db.config.logo) img.src = db.config.logo; });
+      if (page === "dash") { const title = document.querySelector(".content h1"); if (title) title.textContent = db.config.nom; }
+    }
+    if (event.type === "change" && input.tagName === "SELECT") render();
+    return;
+  }
+  const card = input.closest("[data-id]");
+  if (card && input.dataset.p) {
+    const item = db.config.pnj.find((entry) => entry.id === Number(card.dataset.id));
+    item[input.dataset.p] = input.type === "number" ? Number(input.value) : input.value;
+  }
+  if (input.dataset.job) {
+    const job = db.config.jobs.find((entry) => entry.id === Number(input.dataset.job));
+    if (job) job.label = input.value;
+  }
+  if (input.dataset.jobOpen) {
+    const job = db.config.jobs.find((entry) => entry.id === Number(input.dataset.jobOpen));
+    if (job) job.open = input.value === "true";
+  }
+}
+function pnjList() {
+  const q = query.toLowerCase();
+  return db.config.pnj.filter((item) => `${item.name} ${item.model}`.toLowerCase().includes(q)).map(pedCard).join("");
+}
+db = load();
+if (!links().some((item) => item[0] === page)) page = "dash";
+render();
+</script>
+</body>
+</html>
