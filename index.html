@@ -337,8 +337,26 @@ function load() {
     return saved;
   } catch { return base; }
 }
+function apiBase() {
+  const host = location.hostname;
+  if (!host || host === "localhost" || host === "127.0.0.1") return "http://127.0.0.1:3000";
+  return location.origin;
+}
+function syncLicenses() {
+  const payload = {
+    licenses: (db.licenses || []).map((item) => ({
+      key: item.key, plan: item.plan, status: item.status, email: item.email || "", activated: item.activated || null
+    }))
+  };
+  fetch(apiBase() + "/api/v1/sync", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
 function persist(message) {
   localStorage.setItem(DBKEY, JSON.stringify(db));
+  syncLicenses();
   const note = document.getElementById("saved");
   if (note) note.textContent = "Appliqué en direct, sans redémarrage.";
   const dot = document.getElementById("live");
@@ -715,7 +733,14 @@ document.body.addEventListener("click", (event) => {
   if (name === "revoke") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.status = "revoked"; persist("Clé révoquée"); render(); return; }
   if (name === "restore") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.status = item.email ? "active" : "available"; persist("Clé rétablie"); render(); return; }
   if (name === "renew") { const item = db.licenses.find((entry) => entry.id === id); if (item) { item.activated = Date.now(); if (item.status !== "revoked") item.status = "active"; } persist("Durée relancée"); render(); return; }
-  if (name === "reset-ip") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.ip = ""; persist("IP libérée"); render(); return; }
+  if (name === "reset-ip") {
+    const item = db.licenses.find((entry) => entry.id === id);
+    if (item) {
+      item.ip = "";
+      fetch(apiBase() + "/api/v1/reset-ip", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key: item.key }) }).catch(() => {});
+    }
+    persist("IP libérée"); render(); return;
+  }
   if (name === "key-del") {
     if (!confirm("Supprimer cette clé ?")) return;
     db.licenses = db.licenses.filter((item) => item.id !== id); persist("Clé supprimée"); sfx("del"); render(); return;
