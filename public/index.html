@@ -6,133 +6,192 @@
 <title>Ozona Panel</title>
 <style>
   :root {
-    --bg: #090a0d; --side: #0e0f13; --card: #14151b; --line: rgba(255,255,255,.08);
-    --text: #f3f3f5; --muted: #8d9098; --faint: #5e616a;
+    --bg: #07080c; --side: #0c0d12; --card: #14151c; --line: rgba(255,255,255,.09);
+    --text: #f6f7f9; --muted: #a4a9b3; --faint: #737884;
     --red: #dc1428; --red-2: #ff3b30; --green: #2fce73; --amber: #f5b942;
-    --radius: 12px; --side-w: 196px;
+    --radius: 14px; --side-w: 220px;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
   body {
     font-family: Inter, "Segoe UI", sans-serif; color: var(--text); font-size: 13px;
-    background: radial-gradient(900px 380px at 15% -10%, color-mix(in srgb, var(--red) 20%, transparent), transparent 58%), var(--bg);
+    background:
+      radial-gradient(900px 420px at 8% -10%, color-mix(in srgb, var(--red) 28%, transparent), transparent 60%),
+      radial-gradient(700px 320px at 100% 0%, rgba(255,59,48,.08), transparent 50%),
+      var(--bg);
   }
   button, input, select { font: inherit; color: inherit; }
   button { cursor: pointer; }
   img { max-width: 100%; display: block; }
   svg { width: 15px; height: 15px; flex: 0 0 15px; }
-  .gate { min-height: 100vh; display: grid; place-items: center; padding: 28px 16px; }
+  .gate {
+    min-height: 100vh; display: grid; grid-template-columns: minmax(280px, 1.08fr) minmax(320px, 460px);
+    background:
+      radial-gradient(640px 380px at 18% 20%, color-mix(in srgb, var(--red) 32%, transparent), transparent 62%),
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+      #07080c;
+    background-size: auto, 48px 48px, 48px 48px, auto;
+  }
+  .gate-visual { position: relative; overflow: hidden; padding: 36px 42px; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(8px); animation: float 9s ease-in-out infinite; pointer-events: none; }
+  .orb.a { width: 180px; height: 180px; right: -40px; top: 40px; background: color-mix(in srgb, var(--red) 45%, transparent); }
+  .orb.b { width: 120px; height: 120px; left: 12%; bottom: 18%; background: rgba(255,180,60,.18); animation-delay: -3s; }
+  .gate-visual .brand { position: relative; z-index: 1; }
+  .pitch { position: relative; z-index: 1; max-width: 460px; }
+  .pitch h1 { font-size: 40px; line-height: .98; letter-spacing: -.045em; margin: 14px 0 10px; }
+  .pitch p { margin: 0; color: var(--muted); font-size: 15px; max-width: 380px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+  .chip { border: 1px solid var(--line); background: rgba(12,13,18,.72); border-radius: 999px; padding: 5px 10px; font-size: 11px; color: #eceff4; }
+  .skyline { position: relative; z-index: 1; display: flex; align-items: flex-end; gap: 7px; height: 92px; margin-top: 26px; }
+  .skyline span { flex: 1; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, rgba(255,255,255,.14), color-mix(in srgb, var(--red) 35%, #12080a)); position: relative; }
+  .skyline span::after { content: ""; position: absolute; top: 8px; left: 7px; width: 4px; height: 4px; border-radius: 1px; background: #ffe08a; box-shadow: 12px 10px #ffe08a, 0 16px #ffe08a; animation: blink 2.8s infinite; }
+  .skyline span:nth-child(2)::after { animation-delay: .4s; } .skyline span:nth-child(3)::after { animation-delay: .9s; }
+  .street { height: 48px; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(#24262e, #24262e) center/100% 2px no-repeat, #101116; }
+  .walker { position: absolute; bottom: 8px; width: 10px; height: 16px; border-radius: 4px 4px 2px 2px; background: var(--red-2); animation: walk 7s linear infinite; }
+  .walker::before, .walker::after { content: ""; position: absolute; bottom: -6px; width: 3px; height: 7px; background: #f3f3f5; border-radius: 2px; animation: step .35s ease-in-out infinite alternate; }
+  .walker::after { right: 0; animation-delay: .18s; }
+  .feats { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .feat { background: rgba(12,13,18,.78); border: 1px solid var(--line); border-radius: 12px; padding: 10px; backdrop-filter: blur(8px); }
+  .feat b { display: block; margin-bottom: 2px; }
+  .feat span, .hint, .sub, .brand span { color: var(--muted); }
+  .gate-pane { display: grid; place-items: center; padding: 28px 22px; }
   .gate-card {
-    width: min(400px, 100%); background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; padding: 22px 20px 16px; box-shadow: 0 24px 70px rgba(0,0,0,.38);
-    animation: rise .28s ease;
+    width: min(400px, 100%); background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 22px 20px 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 0 1px color-mix(in srgb, var(--red) 25%, transparent);
+    animation: rise .35s ease;
   }
   .brand { display: flex; align-items: center; gap: 8px; }
   .mark {
-    width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+    width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
     background: linear-gradient(160deg, var(--red-2), #7a0c08);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 16%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--red) 18%, transparent);
     animation: pulse 2.8s ease-in-out infinite;
   }
   .brand strong { display: block; font-size: 13px; }
-  .brand span, .hint, .sub { color: var(--muted); }
-  .brand span { font-size: 10px; }
-  h1 { font-size: 18px; margin: 14px 0 4px; letter-spacing: -.02em; }
-  .sub { margin: 0 0 12px; }
-  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
-  .tabs button, .btn, .btn-line, .ghost, .nav {
-    border-radius: 8px; border: 1px solid var(--line); background: #1b1d24;
-  }
-  .tabs button { padding: 7px; background: transparent; }
-  .tabs button.on { background: #1c1e25; color: white; }
+  .brand span { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .gate-card h2 { font-size: 22px; margin: 16px 0 4px; letter-spacing: -.03em; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 12px 0; }
+  .tabs button, .btn, .btn-line, .ghost, .nav { border-radius: 9px; border: 1px solid var(--line); background: #1b1d24; }
+  .tabs button { padding: 8px; background: transparent; }
+  .tabs button.on { background: linear-gradient(180deg, var(--red-2), #9d120c); border-color: transparent; color: white; font-weight: 700; }
   .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .field span { color: var(--muted); font-size: 11px; }
-  .field input, .field select {
-    width: 100%; background: #0d0e12; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; outline: none;
+  .field span, .switcher span { color: var(--muted); font-size: 11px; }
+  .field input, .field select, .switcher select {
+    width: 100%; background: #0c0d12; border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; outline: none;
   }
-  .field input:focus, .field select:focus, .search input:focus { border-color: color-mix(in srgb, var(--red) 70%, white); }
+  .field input:focus, .field select:focus, .search input:focus, .switcher select:focus { border-color: color-mix(in srgb, var(--red) 75%, white); box-shadow: 0 0 0 3px color-mix(in srgb, var(--red) 18%, transparent); }
   .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .field.full { grid-column: 1 / -1; }
   .stack-form { display: flex; flex-direction: column; gap: 8px; }
   .error { color: #ff8d86; font-size: 12px; min-height: 16px; margin: 2px 0 0; }
-  .btn, .btn-line { padding: 8px 10px; display: inline-flex; align-items: center; gap: 6px; }
-  .btn.primary, .btn-primary { width: 100%; justify-content: center; background: linear-gradient(180deg, var(--red-2), #9d120c); border-color: transparent; color: white; font-weight: 700; }
+  .btn, .btn-line { padding: 8px 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn.primary, .btn-primary { background: linear-gradient(180deg, var(--red-2), #9d120c); border-color: transparent; color: white; font-weight: 700; box-shadow: 0 8px 20px color-mix(in srgb, var(--red) 28%, transparent); }
+  .btn.wide { width: 100%; }
   .btn-line { background: transparent; }
+  .btn.danger { background: transparent; color: #ffb4ae; border-color: rgba(220,20,40,.5); }
   .btn:active, .nav:active, .icon-btn:active { transform: scale(.98); }
   .switch { color: var(--muted); font-size: 12px; margin: 12px 0 0; }
   .switch button { border: 0; background: transparent; color: white; font-weight: 700; padding: 0; }
   .app { display: flex; min-height: 100vh; }
   .side {
-    width: var(--side-w); flex: 0 0 var(--side-w); background: var(--side); border-right: 1px solid var(--line);
-    padding: 14px 10px 12px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh;
+    width: var(--side-w); flex: 0 0 var(--side-w); background: rgba(12,13,18,.96); border-right: 1px solid var(--line);
+    padding: 14px 10px 10px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow: auto;
   }
-  .nav-label { margin: 10px 8px 6px; color: var(--faint); font-size: 10px; letter-spacing: .14em; font-weight: 700; }
-  .nav { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: transparent; color: #c5c7cd; text-align: left; padding: 7px 8px; }
-  .nav.active, .nav:hover, .ghost:hover { background: #1c1e25; color: white; }
+  .nav-label { margin: 12px 8px 4px; color: color-mix(in srgb, var(--red-2) 75%, white); font-size: 10px; letter-spacing: .14em; font-weight: 800; }
+  .nav { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: transparent; color: #c9ccd3; text-align: left; padding: 7px 8px; }
+  .nav.active { background: color-mix(in srgb, var(--red) 18%, #1c1e25); color: white; box-shadow: inset 2px 0 0 var(--red-2); }
+  .nav:hover, .ghost:hover { background: #1c1e25; color: white; }
   .nav.active svg { color: var(--red-2); }
-  .foot { margin-top: auto; display: flex; flex-direction: column; gap: 4px; }
-  .ghost { display: flex; align-items: center; gap: 8px; background: transparent; border: 0; color: #b7b9c0; text-align: left; padding: 7px 8px; }
-  .badge { margin: 6px 8px 0; width: fit-content; border: 1px solid rgba(47,206,115,.4); color: var(--green); border-radius: 999px; font-size: 9px; letter-spacing: .12em; padding: 3px 7px; font-weight: 700; }
+  .foot { margin-top: auto; display: flex; flex-direction: column; gap: 4px; padding-top: 10px; }
+  .ghost { display: flex; align-items: center; gap: 8px; background: transparent; border: 0; color: #c5c7ce; text-align: left; padding: 7px 8px; }
+  .badge { margin: 6px 8px 0; width: fit-content; border: 1px solid color-mix(in srgb, var(--red) 55%, transparent); color: #ffb4ae; border-radius: 999px; font-size: 9px; letter-spacing: .12em; padding: 3px 7px; font-weight: 800; }
+  .badge.ok { border-color: rgba(47,206,115,.45); color: var(--green); }
   .main, .content, .grid, .stack, .card, .fields, .field { min-width: 0; }
   .main { flex: 1; display: flex; flex-direction: column; }
-  .top { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); }
-  .crumb { color: var(--muted); min-width: 150px; }
-  .crumb b { color: var(--text); font-weight: 600; }
-  .search { flex: 1; display: flex; justify-content: center; }
-  .search input { width: min(280px, 100%); background: #121318; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; outline: none; }
-  .avatar { width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: linear-gradient(160deg, var(--red-2), #6e0d09); }
-  .content { padding: 16px 18px 78px; animation: rise .28s ease; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(230px, .72fr); gap: 10px; }
+  .top { min-height: 56px; display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .crumb { color: var(--muted); min-width: 140px; }
+  .crumb b { color: var(--text); font-weight: 650; }
+  .switcher { display: flex; flex-direction: column; gap: 2px; min-width: 210px; }
+  .search { flex: 1; display: flex; justify-content: center; min-width: 140px; }
+  .search input { width: min(260px, 100%); background: #101117; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; outline: none; }
+  .live { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: block; }
+  .live.ping i { animation: ping .45s ease; }
+  .avatar { width: 30px; height: 30px; border-radius: 999px; display: grid; place-items: center; font-size: 12px; font-weight: 800; background: linear-gradient(160deg, var(--red-2), #6e0d09); }
+  .mobile-nav { display: none; }
+  .content { padding: 16px 18px 86px; animation: rise .28s ease; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-bottom: 12px; }
+  .page-head h1, .content h1 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
+  .sub { margin: 4px 0 0; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, .78fr); gap: 10px; }
   .stack { display: flex; flex-direction: column; gap: 10px; }
-  .card { background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 42%), var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  .card { background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 46%), var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; box-shadow: 0 12px 28px rgba(0,0,0,.16); }
   .card h2 { margin: 0; font-size: 14px; }
   .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat { background: #101116; border-radius: 10px; padding: 8px 10px; }
+  .stats.four { grid-template-columns: repeat(4, 1fr); margin-bottom: 10px; }
+  .stat { background: #101116; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
   .stat small, .muted { display: block; color: var(--muted); font-size: 11px; }
-  .stat b { font-size: 16px; }
+  .stat b { font-size: 18px; }
   .ok { color: var(--green); } .warn { color: var(--amber); }
-  .preview-logo, .banner { border: 1px solid var(--line); border-radius: 10px; background: #0d0e12; overflow: hidden; }
-  .preview-logo { height: 64px; display: grid; place-items: center; padding: 8px; }
-  .preview-logo img { max-height: 48px; object-fit: contain; }
-  .banner { height: 72px; display: flex; align-items: flex-end; padding: 8px 10px; background-size: cover; background-position: center; position: relative; }
-  .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(0,0,0,.55)); }
-  .banner b, .banner span { position: relative; z-index: 1; }
-  .banner span { display: block; color: #ddd; font-size: 11px; }
-  .menu-mock { margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #101116; }
-  .menu-item { padding: 6px 10px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; }
-  .menu-item.on { background: color-mix(in srgb, var(--red) 28%, #15161c); }
-  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .pnj, .license {
-    display: grid; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: #101116; margin-bottom: 6px;
+  .scope, .person, .srv, .license {
+    display: flex; gap: 10px; align-items: flex-start; padding: 10px; margin-bottom: 8px;
+    border: 1px solid var(--line); border-radius: 12px; background: #101116;
   }
-  .pnj { grid-template-columns: 28px minmax(0, 1fr) auto; align-items: start; }
-  .pnj.off { opacity: .45; }
+  .scope { align-items: center; border-color: color-mix(in srgb, var(--red) 40%, transparent); background: color-mix(in srgb, var(--red) 10%, #12131a); }
+  .scope b, .person b, .srv b { display: block; }
+  .stripe { width: 4px; align-self: stretch; border-radius: 99px; background: var(--c, var(--red)); flex: 0 0 4px; }
+  .grow { flex: 1; min-width: 0; }
+  .preview-logo, .banner { border: 1px solid var(--line); border-radius: 10px; background: #0d0e12; overflow: hidden; }
+  .preview-logo { height: 72px; display: grid; place-items: center; padding: 8px; }
+  .preview-logo img { max-height: 52px; object-fit: contain; }
+  .banner { height: 78px; display: flex; align-items: flex-end; padding: 8px 10px; background-size: cover; background-position: center; position: relative; }
+  .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(0,0,0,.58)); }
+  .banner b, .banner span { position: relative; z-index: 1; }
+  .banner span { display: block; color: #eee; font-size: 11px; }
+  .menu-mock { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #101116; }
+  .menu-item { padding: 7px 10px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .menu-item.on { background: color-mix(in srgb, var(--red) 32%, #15161c); }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .pnj { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: #101116; margin-bottom: 6px; }
+  .pnj.off, .person.off { opacity: .5; }
   .dot { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--red) 18%, #15161c); color: var(--red-2); }
   .key { font-family: Consolas, monospace; font-size: 12px; word-break: break-all; }
-  .tag { border-radius: 999px; padding: 2px 7px; font-size: 11px; background: #241416; color: #ffb4ae; }
-  .tag.live { background: rgba(47,206,115,.12); color: var(--green); }
+  .tag { border-radius: 999px; padding: 2px 7px; font-size: 11px; background: #2a2416; color: var(--amber); }
+  .tag.live { background: rgba(47,206,115,.14); color: var(--green); }
+  .tag.dead { background: #2a1518; color: #ffb4ae; }
   .icon-btn { border: 0; background: transparent; color: var(--muted); padding: 4px; border-radius: 6px; }
   .icon-btn:hover { background: #22242c; color: white; }
-  .street { height: 46px; border-radius: 10px; position: relative; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--line); background: linear-gradient(#1a1c22, #1a1c22) center/100% 2px no-repeat, #101116; }
-  .walker { position: absolute; bottom: 8px; width: 10px; height: 16px; border-radius: 4px 4px 2px 2px; background: var(--red-2); animation: walk 7s linear infinite; }
-  .walker::before, .walker::after { content: ""; position: absolute; bottom: -6px; width: 3px; height: 7px; background: #f3f3f5; border-radius: 2px; animation: step .35s ease-in-out infinite alternate; }
-  .walker::after { right: 0; animation-delay: .18s; }
-  .swatch { height: 34px; padding: 0; border: 0; background: transparent; }
+  .swatch { height: 36px; padding: 2px; }
   .bar {
     position: fixed; z-index: 4; left: calc(var(--side-w) + 12px); right: 12px; bottom: 12px;
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    background: rgba(14,15,19,.94); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; backdrop-filter: blur(8px);
+    background: rgba(12,13,18,.94); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px;
+    backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,.28);
   }
   .bar[hidden] { display: none; }
-  .toast { position: fixed; right: 16px; bottom: 64px; background: #17181f; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; opacity: 0; transform: translateY(8px); transition: .25s ease; pointer-events: none; }
+  .toast { position: fixed; right: 16px; bottom: 72px; background: #17181f; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; opacity: 0; transform: translateY(8px); transition: .25s ease; pointer-events: none; z-index: 5; }
   .toast.show { opacity: 1; transform: none; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  @keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--red) 8%, transparent); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--red) 8%, transparent); } }
   @keyframes walk { from { left: -16px; } to { left: 100%; } }
   @keyframes step { from { transform: rotate(16deg); } to { transform: rotate(-16deg); } }
-  @media (max-width: 860px) {
-    .side { display: none; } .grid, .fields { grid-template-columns: 1fr; } .bar { left: 12px; }
+  @keyframes float { 50% { transform: translateY(14px); } }
+  @keyframes blink { 50% { opacity: .25; } }
+  @keyframes ping { 50% { box-shadow: 0 0 0 6px transparent; } }
+  @media (max-width: 900px) {
+    .gate { grid-template-columns: 1fr; }
+    .gate-visual { padding: 22px 18px 6px; }
+    .pitch h1 { font-size: 30px; }
+    .feats, .skyline { display: none; }
+    .side { display: none; }
+    .mobile-nav { display: flex; gap: 6px; overflow: auto; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    .mobile-nav .nav { width: auto; white-space: nowrap; border: 1px solid var(--line); }
+    .grid, .fields, .stats.four { grid-template-columns: 1fr; }
+    .stats.four { grid-template-columns: 1fr 1fr; }
+    .bar { left: 12px; }
   }
 </style>
 </head>
@@ -153,6 +212,7 @@ const I = {
   shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v6c0 5 3.2 7.6 7 9 3.8-1.4 7-4 7-9V6z"/></svg>',
   job: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5h8v2"/></svg>',
   bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 21h4"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
   vol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9a5 5 0 0 1 0 6"/></svg>',
   mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 5M21 9l-5 5"/></svg>',
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6H5v12h4M10 12h10M16 8l4 4-4 4"/></svg>',
@@ -160,12 +220,12 @@ const I = {
 };
 const WEATHER = ["EXTRASUNNY","CLEAR","CLOUDS","SMOG","FOGGY","OVERCAST","RAIN","THUNDER","CLEARING","NEUTRAL","SNOW","XMAS","HALLOWEEN"];
 const ANIMS = ["WORLD_HUMAN_CLIPBOARD","WORLD_HUMAN_COP_IDLES","WORLD_HUMAN_GUARD_STAND","WORLD_HUMAN_STAND_IMPATIENT","CODE_HUMAN_MEDIC_TIME_OF_DEATH"];
-const PLANS = { "7j": ["7 jours", 7], "30j": ["30 jours", 30], "3m": ["3 mois", 90], "1an": ["1 an", 365], lifetime: ["LifeTime", null] };
+const PLANS = { "7j": ["7 jours", 7, "price7"], "30j": ["30 jours", 30, "price30"], "3m": ["3 mois", 90, "price3m"], "1an": ["1 an", 365, "price1an"], lifetime: ["LifeTime", null, "priceLife"] };
 const DBKEY = "ozona-panel-final";
-const MANAGER_NAME = "ozona";
-const MANAGER_PASS = "OzonaManager250";
+const MANAGER_HASH = "9c7ab17aeeddca4608087299c902cbedf7dd312b93558760b4719ebf4f0b2bee";
+const CONFIG_PAGES = ["server","look","eco","world","jobs","pnj","system","logs"];
 const app = document.getElementById("app");
-let db, page = "dash", gate = "client", authError = "", query = "", audio;
+let db, page = "dash", gate = "client", authError = "", query = "", audio, prefill = "", saveTimer;
 
 function sha256(s) {
   const r = (n, b) => (n >>> b) | (n << (32 - b));
@@ -200,60 +260,128 @@ function sha256(s) {
   return [h0,h1,h2,h3,h4,h5,h6,h7].map((x) => x.toString(16).padStart(8, "0")).join("");
 }
 const passHash = (value) => sha256("ozona|" + value);
+function defaultConfig() {
+  return {
+    nom: "GtaNew", cfx: "GtaNew", slots: 128, lang: "fr",
+    discord: "https://discord.gg/gtanew", discordApi: "1472612252023787650", discordText: "OzonaProject", discordLogo: "",
+    boutique: "https://GtaNew.tebex.io", guide: "https://discord.gg/gtanew", showDiscord: true, showGuide: true,
+    motd: "Bienvenue sur le serveur.", welcome: "Bon jeu sur Ozona.",
+    maintenance: false, maintenanceMsg: "Le serveur est en maintenance.", whitelist: false,
+    logo: "https://r2.fivemanage.com/wPwRsBgX6HFIhcSuTWKZH/logo.png", banner: "", loadscreen: "", loadMusic: "",
+    style: "advanced", size: "small", color: "#dc1428", color2: "#1a0507", hud: "#dc1428", marker: 21,
+    paycheck: 50, paycheckMin: 15, vip: "VIP", vipPay: 150, startMoney: 500, currency: "€", tax: 5,
+    invWeight: 40, maxVehicles: 8, starter: "pain, eau",
+    spawnX: -269.4, spawnY: -955.3, spawnZ: 31.2, spawnH: 205, defaultJob: "unemployed",
+    weatherSouth: "EXTRASUNNY", weatherNorth: "CLOUDS", weatherDynamic: true, hour: 21,
+    hunger: true, voice: 8, blips: true, phone: true, radio: true, radioName: "Ozona FM",
+    fuel: true, speedUnit: "km/h", afk: 15, restart: "06:00",
+    drugsbuilder: true, atm: true, fishing: true, keys: false, lockpick: false, fiveguard: false, showIp: false, notifJobs: true,
+    logConnect: "", logDeath: "", logIcon: "https://r2.fivemanage.com/IyifgspXaypiEVgDZKsgY/5(1).png",
+    jobs: [
+      { id: 1, label: "Police", open: true }, { id: 2, label: "E.M.S", open: true }, { id: 3, label: "Ozona Customs", open: true },
+      { id: 4, label: "Concession", open: true }, { id: 5, label: "LTD", open: false }, { id: 6, label: "Burgershot", open: true }
+    ],
+    pnj: [
+      { id: 1, name: "Accueil Pillbox", model: "s_m_m_doctor_01", x: 298.2, y: -584.4, z: 43.3, h: 70, anim: ANIMS[4], on: true },
+      { id: 2, name: "Commissariat", model: "s_m_y_cop_01", x: 441.1, y: -981.8, z: 30.7, h: 90, anim: ANIMS[1], on: true },
+      { id: 3, name: "Concession", model: "s_m_m_autoshop_01", x: -33.7, y: -1102, z: 26.4, h: 70, anim: ANIMS[0], on: true },
+      { id: 4, name: "Ozona Customs", model: "s_m_m_autoshop_02", x: -347.4, y: -133.3, z: 39, h: 250, anim: ANIMS[3], on: true }
+    ]
+  };
+}
+function defaultShop() {
+  return { prefix: "OZONA", price7: 15, price30: 40, price3m: 90, price1an: 180, priceLife: 250, maxPerClient: 5, allowOpen: true };
+}
+function clone(value) { return JSON.parse(JSON.stringify(value)); }
+function mergeConfig(extra) {
+  const base = defaultConfig();
+  const out = Object.assign(base, extra || {});
+  out.jobs = extra && Array.isArray(extra.jobs) ? extra.jobs : base.jobs;
+  out.pnj = extra && Array.isArray(extra.pnj) ? extra.pnj : base.pnj;
+  return out;
+}
 function fresh() {
   return {
-    manager: { username: MANAGER_NAME, pass: passHash(MANAGER_PASS) },
-    users: [],
-    session: null,
-    licenses: [{ id: 1, key: "OZONA_0B2B117D_23C2_A1AD_E8B4_138862C4E864", plan: "lifetime", status: "available", email: "", ip: "" }],
-    config: {
-      nom: "GtaNew", cfx: "GtaNew", slots: 128, discord: "https://discord.gg/gtanew", discordApi: "1472612252023787650",
-      boutique: "https://GtaNew.tebex.io", guide: "https://discord.gg/gtanew", showDiscord: true, showGuide: true,
-      logo: "https://r2.fivemanage.com/wPwRsBgX6HFIhcSuTWKZH/logo.png", banner: "", style: "advanced", size: "small",
-      color: "#dc1428", marker: 21, paycheck: 50, paycheckMin: 15, vip: "VIP", startMoney: 500,
-      weatherSouth: "EXTRASUNNY", weatherNorth: "CLOUDS", weatherDynamic: true, hour: 21,
-      drugsbuilder: true, atm: true, fishing: true, keys: false, lockpick: false, fiveguard: false, showIp: false, notifJobs: true,
-      logConnect: "", logDeath: "", logIcon: "https://r2.fivemanage.com/IyifgspXaypiEVgDZKsgY/5(1).png", sound: true,
-      jobs: [
-        { id: 1, label: "Police", open: true }, { id: 2, label: "E.M.S", open: true }, { id: 3, label: "Ozona Customs", open: true },
-        { id: 4, label: "Concession", open: true }, { id: 5, label: "LTD", open: false }, { id: 6, label: "Burgershot", open: true }
-      ],
-      pnj: [
-        { id: 1, name: "Accueil Pillbox", model: "s_m_m_doctor_01", x: 298.2, y: -584.4, z: 43.3, h: 70, anim: ANIMS[4], on: true },
-        { id: 2, name: "Commissariat", model: "s_m_y_cop_01", x: 441.1, y: -981.8, z: 30.7, h: 90, anim: ANIMS[1], on: true },
-        { id: 3, name: "Concession", model: "s_m_m_autoshop_01", x: -33.7, y: -1102, z: 26.4, h: 70, anim: ANIMS[0], on: true },
-        { id: 4, name: "Ozona Customs", model: "s_m_m_autoshop_02", x: -347.4, y: -133.3, z: 39, h: 250, anim: ANIMS[3], on: true }
-      ]
-    }
+    manager: { username: "ozona", name: "Ozona", pass: MANAGER_HASH },
+    users: [], session: null, focus: null,
+    ui: { sound: true },
+    keyShop: defaultShop(),
+    licenses: [{ id: 1, key: "OZONA_0B2B117D_23C2_A1AD_E8B4_138862C4E864", plan: "lifetime", status: "available", email: "", ip: "", activated: null }],
+    config: defaultConfig()
   };
 }
 function load() {
   const base = fresh();
   try {
     const saved = JSON.parse(localStorage.getItem(DBKEY) || "null");
-    if (!saved || !saved.manager) return base;
-    saved.config = Object.assign(base.config, saved.config || {});
-    saved.users = saved.users || [];
-    saved.licenses = saved.licenses || base.licenses;
+    if (!saved || !saved.manager || !saved.manager.pass) return base;
+    saved.manager.name = saved.manager.name || "Ozona";
+    saved.manager.username = String(saved.manager.username || "ozona").toLowerCase();
+    saved.config = mergeConfig(saved.config);
+    saved.users = (saved.users || []).map((user) => ({
+      email: String(user.email || "").toLowerCase(),
+      pass: user.pass,
+      disabled: !!user.disabled,
+      note: user.note || "",
+      created: user.created || Date.now(),
+      server: mergeConfig(user.server || saved.config)
+    }));
+    saved.licenses = (saved.licenses || base.licenses).map((item) => Object.assign({ ip: "", activated: null }, item));
+    saved.keyShop = Object.assign(defaultShop(), saved.keyShop || {});
+    saved.ui = { sound: saved.ui ? saved.ui.sound !== false : saved.config.sound !== false };
+    saved.focus = saved.users.some((user) => user.email === saved.focus) ? saved.focus : null;
+    if (saved.session && saved.session.role === "client") {
+      const user = saved.users.find((item) => item.email === saved.session.email);
+      if (!user || user.disabled) saved.session = null;
+    }
     return saved;
   } catch { return base; }
 }
 function persist(message) {
   localStorage.setItem(DBKEY, JSON.stringify(db));
   const note = document.getElementById("saved");
-  if (note) note.textContent = "Enregistré à l'instant.";
+  if (note) note.textContent = "Appliqué en direct, sans redémarrage.";
+  const dot = document.getElementById("live");
+  if (dot) { dot.classList.add("ping"); clearTimeout(dot._t); dot._t = setTimeout(() => dot.classList.remove("ping"), 450); }
   if (message) { toast(message); sfx("save"); }
+}
+function liveSave() {
+  clearTimeout(saveTimer);
+  const note = document.getElementById("saved");
+  if (note) note.textContent = "Application en direct…";
+  saveTimer = setTimeout(() => persist(), 160);
 }
 function esc(value) { return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
 function manager() { return db.session && db.session.role === "manager"; }
 function client() { return db.users.find((user) => db.session && user.email === db.session.email); }
+function cfg() {
+  if (manager()) {
+    if (db.focus) {
+      const user = db.users.find((item) => item.email === db.focus);
+      if (user) return user.server;
+    }
+    return db.config;
+  }
+  const user = client();
+  return user ? user.server : db.config;
+}
+function planPrice(id) { const plan = PLANS[id]; return plan ? Number(db.keyShop[plan[2]] || 0) : 0; }
+function euros(value) { return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Number(value) || 0); }
+function remain(item) {
+  const plan = PLANS[item.plan] || [item.plan, null];
+  if (plan[1] == null) return "LifeTime";
+  if (item.status !== "active" || !item.activated) return plan[1] + " jours à l'activation";
+  const left = item.activated + plan[1] * 86400000 - Date.now();
+  if (left <= 0) return "Expirée";
+  return Math.ceil(left / 86400000) + " j restants";
+}
 function toast(text) {
   const el = document.getElementById("toast");
   el.textContent = text; el.classList.add("show");
-  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 1600);
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 1700);
 }
 function sfx(kind) {
-  if (!db.config.sound) return;
+  if (!db.ui.sound) return;
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return;
   audio = audio || new Ctx();
@@ -271,94 +399,155 @@ function sfx(kind) {
     osc.connect(gain); gain.connect(audio.destination); osc.start(at); osc.stop(at + 0.16);
   });
 }
-function paint() {
-  document.documentElement.style.setProperty("--red", db.config.color || "#dc1428");
-}
+function paint() { document.documentElement.style.setProperty("--red", cfg().color || "#dc1428"); }
 function bannerStyle() {
-  const c = db.config;
-  return c.banner ? `background-image:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.5)),url('${esc(c.banner)}')` : `background-image:linear-gradient(120deg, ${c.color}, #1a0507 72%)`;
+  const c = cfg();
+  return c.banner ? `background-image:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.5)),url('${esc(c.banner)}')` : `background-image:linear-gradient(120deg, ${c.color}, ${c.color2 || "#1a0507"} 72%)`;
 }
 function field(label, key, type, extra) {
-  const value = db.config[key];
-  if (type === "select") return `<label class="field"><span>${label}</span><select data-k="${key}">${extra.map((item) => `<option ${value === item ? "selected" : ""}>${item}</option>`).join("")}</select></label>`;
+  const value = cfg()[key];
+  if (type === "select") return `<label class="field"><span>${label}</span><select data-k="${key}">${extra.map((item) => `<option ${String(value) === String(item) ? "selected" : ""}>${item}</option>`).join("")}</select></label>`;
   if (type === "bool") return `<label class="field"><span>${label}</span><select data-k="${key}" data-bool="1"><option value="true" ${value ? "selected" : ""}>Activé</option><option value="false" ${value ? "" : "selected"}>Désactivé</option></select></label>`;
   const kind = type === "color" ? "color" : type || "text";
-  return `<label class="field"><span>${label}</span><input data-k="${key}" type="${kind}" ${kind === "color" ? "class='swatch'" : ""} value="${esc(value)}"></label>`;
+  const wide = ["motd","welcome","maintenanceMsg","starter","loadMusic","loadscreen","logo","banner","discord","boutique","guide","logConnect","logDeath","logIcon","discordLogo"].includes(key);
+  return `<label class="field${wide ? " full" : ""}"><span>${label}</span><input data-k="${key}" type="${kind}" ${kind === "color" ? "class='swatch'" : ""} ${kind === "number" ? "step='0.1'" : ""} value="${esc(value)}"></label>`;
+}
+function shopField(label, key, type) {
+  const value = db.keyShop[key];
+  if (type === "bool") return `<label class="field"><span>${label}</span><select data-shop="${key}" data-bool="1"><option value="true" ${value ? "selected" : ""}>Autorisé</option><option value="false" ${value ? "" : "selected"}>Refusé</option></select></label>`;
+  return `<label class="field"><span>${label}</span><input data-shop="${key}" ${type === "number" ? "data-num='1' type='number' step='1'" : "type='text'"} value="${esc(value)}"></label>`;
 }
 function card(title, hint, body) { return `<article class="card"><div class="head"><div><h2>${title}</h2>${hint ? `<p class="hint">${hint}</p>` : ""}</div></div>${body}</article>`; }
-function street() {
-  return `<div class="street">${db.config.pnj.filter((item) => item.on).slice(0, 6).map((item, index) => `<span class="walker" style="animation-delay:${index * -1.1}s"></span>`).join("")}</div>`;
+function street(source) {
+  const list = (source || cfg().pnj).filter((item) => item.on).slice(0, 6);
+  return `<div class="street">${list.map((item, index) => `<span class="walker" style="animation-delay:${index * -1.1}s;background:${esc((source ? db.config : cfg()).color || "#dc1428")}"></span>`).join("")}</div>`;
+}
+function scope() {
+  if (!manager()) return "";
+  const own = db.focus ? "Serveur de " + db.focus : "Modèle atelier, copié sur chaque nouveau client";
+  return `<div class="scope"><div class="dot">${I.server}</div><div><b data-bind="nom">${esc(cfg().nom)}</b><span>${esc(own)}</span></div></div>`;
+}
+function blankUser(email, pass, city) {
+  const server = clone(db.config);
+  if (city) server.nom = city;
+  return { email, pass: passHash(pass), disabled: false, note: "", created: Date.now(), server };
 }
 
 function render() {
+  if (db.session && !links().some((item) => item[0] === page)) page = "dash";
   paint();
   app.innerHTML = db.session ? shell() : auth();
 }
 function auth() {
   const managerGate = gate === "manager";
   const register = gate === "register";
-  const title = register ? "Créer un compte" : managerGate ? "Connexion manager" : "Connexion";
-  const sub = register ? "E-mail et mot de passe. Le compte sert à récupérer ta licence." : managerGate ? "Réservé au propriétaire du panel." : "Entre avec l'e-mail du compte client.";
-  const first = managerGate && db.manager.pass === passHash(MANAGER_PASS) ? `<p class="hint">Premier accès : ${MANAGER_NAME} / ${MANAGER_PASS}</p>` : "";
-  return `<div class="gate"><form class="gate-card" id="auth">
-    <div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>Panel</span></div></div>
-    <h1>${title}</h1><p class="sub">${sub}</p>
-    ${register ? "" : `<div class="tabs"><button type="button" data-gate="client" class="${managerGate ? "" : "on"}">Client</button><button type="button" data-gate="manager" class="${managerGate ? "on" : ""}">Manager</button></div>`}
-    <div class="stack-form">
-      <label class="field"><span>${register || !managerGate ? "E-mail" : "Identifiant"}</span><input name="login" type="${register || !managerGate ? "email" : "text"}" autocomplete="${managerGate ? "username" : "email"}" required></label>
-      <label class="field"><span>Mot de passe</span><input name="pass" type="password" minlength="8" autocomplete="${register ? "new-password" : "current-password"}" required></label>
-      ${register ? `<label class="field"><span>Confirmer</span><input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label>` : ""}
-      <p class="error">${esc(authError)}</p>
-      ${first}
-      <button class="btn primary" type="submit">${register ? "Créer le compte" : "Se connecter"}</button>
-    </div>
-    <p class="switch">${register ? "Déjà inscrit ?" : "Pas encore de compte ?"} <button type="button" data-gate="${register ? "client" : "register"}">${register ? "Connexion" : "Créer un compte"}</button></p>
-  </form></div>`;
+  const title = register ? "Créer un compte" : managerGate ? "Connexion manager" : "Connexion client";
+  const sub = register ? "E-mail et mot de passe. Le manager pourra ensuite ouvrir ton serveur." : managerGate ? "Tu entres sur tous les serveurs, les clés et les comptes." : "Entre avec l'e-mail du compte. Ton serveur s'ouvre aussitôt.";
+  const pitch = managerGate ? ["Le pouvoir sur tout.", "Chaque ville, chaque clé, chaque compte. Les réglages partent en direct."] : register ? ["Rejoins la ville.", "Un compte, une licence, un serveur à régler sans redémarrer le panel."] : ["Ta ville, tes règles.", "Logo, météo, métiers, PNJ. Tout se modifie pendant que tu regardes."];
+  return `<div class="gate"><section class="gate-visual"><i class="orb a"></i><i class="orb b"></i>
+      <div class="brand"><div class="mark">${I.logo}</div><div><strong>OzonaProject</strong><span>Panel</span></div></div>
+      <div class="pitch"><h1>${pitch[0]}</h1><p>${pitch[1]}</p><div class="chips"><span class="chip">En direct</span><span class="chip">Sans redémarrage</span><span class="chip">Clés</span><span class="chip">PNJ</span><span class="chip">Métiers</span></div>
+        <div class="skyline"><span style="height:46%"></span><span style="height:78%"></span><span style="height:58%"></span><span style="height:92%"></span><span style="height:64%"></span><span style="height:40%"></span><span style="height:84%"></span></div>
+        ${street(db.config.pnj)}
+      </div>
+      <div class="feats"><div class="feat"><b>${db.users.length}</b><span>serveurs clients</span></div><div class="feat"><b>${db.licenses.filter((item) => item.status === "active").length}</b><span>licences actives</span></div><div class="feat"><b>${db.config.jobs.filter((job) => job.open).length}</b><span>métiers du modèle</span></div><div class="feat"><b>${db.config.pnj.filter((item) => item.on).length}</b><span>PNJ du modèle</span></div></div>
+    </section><section class="gate-pane"><form class="gate-card" id="auth">
+      <div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>${managerGate ? "Manager" : "Client"}</span></div></div>
+      <h2>${title}</h2><p class="sub">${sub}</p>
+      ${register ? "" : `<div class="tabs"><button type="button" data-gate="client" class="${managerGate ? "" : "on"}">Client</button><button type="button" data-gate="manager" class="${managerGate ? "on" : ""}">Manager</button></div>`}
+      <div class="stack-form">
+        <label class="field"><span>${register || !managerGate ? "E-mail" : "Identifiant"}</span><input name="login" type="${register || !managerGate ? "email" : "text"}" autocomplete="${managerGate ? "username" : "email"}" required></label>
+        <label class="field"><span>Mot de passe</span><input name="pass" type="password" minlength="8" autocomplete="${register ? "new-password" : "current-password"}" required></label>
+        ${register ? `<label class="field"><span>Confirmer</span><input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label>` : ""}
+        <p class="error">${esc(authError)}</p>
+        <button class="btn primary wide" type="submit">${register ? "Créer le compte" : "Se connecter"}</button>
+      </div>
+      <p class="switch">${register ? "Déjà inscrit ?" : "Pas encore de compte ?"} <button type="button" data-gate="${register ? "client" : "register"}">${register ? "Connexion" : "Créer un compte"}</button></p>
+    </form></section></div>`;
 }
 function links() {
-  if (manager()) return [["dash","Tableau",I.dash],["server","Serveur",I.server],["look","Visuel",I.paint],["jobs","Métiers",I.job],["pnj","PNJ",I.users],["weather","Météo",I.cloud],["system","Système",I.shield],["logs","Logs",I.bell],["keys","Clés",I.key],["users","Clients",I.users],["account","Mon compte",I.logo]];
-  return [["dash","Tableau",I.dash],["license","Ma licence",I.key],["account","Mon compte",I.logo]];
+  const city = [["server","Identité",I.server],["look","Visuel",I.paint],["eco","Économie",I.coin],["world","Monde",I.globe],["jobs","Métiers",I.job],["pnj","PNJ",I.users],["system","Sécurité",I.shield],["logs","Logs",I.bell]];
+  if (manager()) return [["dash","Pilotage",I.dash],["servers","Serveurs",I.server], ...city, ["keys","Clés",I.key],["users","Clients",I.users],["account","Manager",I.logo]];
+  return [["dash","Tableau",I.dash], ...city, ["license","Ma licence",I.key],["account","Mon compte",I.logo]];
+}
+function groups() {
+  return manager() ? { 0: "PILOTAGE", 2: "SERVEUR", 8: "SÉCURITÉ", 10: "POUVOIR" } : { 0: "ESPACE", 1: "SERVEUR", 9: "COMPTE" };
 }
 function shell() {
   const items = links();
   const label = (items.find((item) => item[0] === page) || items[0])[1];
-  const who = manager() ? db.manager.username : db.session.email;
-  const groups = manager() ? { 0: "GÉNÉRAL", 2: "VILLE", 6: "SYSTÈME", 8: "COMPTE" } : { 0: "GÉNÉRAL", 2: "COMPTE" };
-  return `<div class="app"><aside class="side"><div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>${manager() ? "Manager" : "Client"}</span></div></div>
-    ${items.map((item, index) => `${groups[index] ? `<div class="nav-label">${groups[index]}</div>` : ""}<button class="nav${page === item[0] ? " active" : ""}" data-page="${item[0]}" type="button">${item[2]}${item[1]}</button>`).join("")}
-    <div class="foot"><button class="ghost" data-act="sound" type="button">${db.config.sound ? I.vol : I.mute} Sons ${db.config.sound ? "activés" : "coupés"}</button><button class="ghost" data-act="logout" type="button">${I.out} Déconnexion</button><div class="badge">PROTECTED</div></div></aside>
-    <section class="main"><header class="top"><div class="crumb">Ozona / <b>${label}</b></div><div class="search"><input id="q" placeholder="Chercher" value="${esc(query)}"></div><div class="avatar" title="${esc(who)}">${esc(who.slice(0, 1).toUpperCase())}</div></header>
+  const who = manager() ? (db.manager.name || db.manager.username) : db.session.email;
+  const map = groups();
+  const nav = items.map((item, index) => `${map[index] ? `<div class="nav-label">${map[index]}</div>` : ""}<button class="nav${page === item[0] ? " active" : ""}" data-page="${item[0]}" type="button">${item[2]}${item[1]}</button>`).join("");
+  return `<div class="app"><aside class="side"><div class="brand"><div class="mark">${I.logo}</div><div><strong>Ozona</strong><span>${manager() ? "Pouvoir total" : "Client"}</span></div></div>
+    ${nav}<div class="foot"><button class="ghost" data-act="sound" type="button">${db.ui.sound ? I.vol : I.mute} Sons ${db.ui.sound ? "activés" : "coupés"}</button><button class="ghost" data-act="logout" type="button">${I.out} Déconnexion</button><div class="badge${manager() ? "" : " ok"}">${manager() ? "POUVOIR TOTAL" : "CLIENT"}</div></div></aside>
+    <section class="main"><header class="top"><div class="crumb">Ozona / <b>${label}</b></div>${switcher()}<div class="search"><input id="q" placeholder="Chercher" value="${esc(query)}"></div><span class="live" id="live"><i></i> Direct</span><div class="avatar" title="${esc(who)}">${esc(who.slice(0, 1).toUpperCase())}</div></header>
+    <div class="mobile-nav">${items.map((item) => `<button class="nav${page === item[0] ? " active" : ""}" data-page="${item[0]}" type="button">${item[1]}</button>`).join("")}</div>
     <div class="content">${view()}</div>
-    <div class="bar" ${["server","look","jobs","pnj","weather","system","logs"].includes(page) ? "" : "hidden"}><span class="hint" id="saved">Les réglages restent enregistrés dans ce navigateur.</span><div class="row"><button class="btn-line" data-act="export" type="button">Exporter</button><button class="btn-line" data-act="lua" type="button">Copier Lua</button><button class="btn primary" data-act="save" type="button" style="width:auto">Enregistrer</button></div></div>
+    <div class="bar" ${CONFIG_PAGES.includes(page) ? "" : "hidden"}><span class="hint" id="saved">Chaque modification est déjà appliquée.</span><div class="row"><button class="btn-line" data-act="export" type="button">Exporter</button><button class="btn-line" data-act="lua" type="button">Copier Lua</button></div></div>
     </section></div>`;
 }
+function switcher() {
+  if (!manager()) return "";
+  return `<label class="switcher"><span>Serveur sous contrôle</span><select id="focus"><option value="" ${db.focus ? "" : "selected"}>Atelier · ${esc(db.config.nom)}</option>${db.users.map((user) => `<option value="${esc(user.email)}" ${db.focus === user.email ? "selected" : ""}>${esc(user.server.nom)} · ${esc(user.email)}</option>`).join("")}</select></label>`;
+}
 function view() {
-  const pages = { dash, server, look, jobs, pnj, weather, system, logs, keys, users, account, license };
+  const pages = { dash, servers, server, look, eco, world, jobs, pnj, system, logs, keys, users, account, license };
   return (pages[page] || dash)();
 }
 function dash() {
-  const c = db.config;
+  const c = cfg();
   if (!manager()) {
     const mine = db.licenses.filter((item) => item.email === db.session.email && item.status === "active");
-    return `<h1>${esc(c.nom)}</h1><p class="sub">Ton espace client.</p><div class="stats"><div class="stat"><small>Licences actives</small><b>${mine.length}</b></div><div class="stat"><small>Statut</small><b class="${mine.length ? "ok" : "warn"}">${mine.length ? "Actif" : "En attente"}</b></div></div>`;
+    return `<div class="page-head"><div><h1>${esc(c.nom)}</h1><p class="sub">Ton serveur. Les réglages partent en direct.</p></div></div>
+      <div class="stats four"><div class="stat"><small>Licences actives</small><b>${mine.length}</b></div><div class="stat"><small>Slots</small><b>${c.slots}</b></div><div class="stat"><small>Métiers ouverts</small><b>${c.jobs.filter((job) => job.open).length}</b></div><div class="stat"><small>PNJ</small><b>${c.pnj.filter((item) => item.on).length}</b></div></div>
+      <div class="grid"><div class="stack">${card("Ville", "", street() + c.pnj.slice(0, 3).map((item) => `<div class="pnj${item.on ? "" : " off"}"><div class="dot">${I.pin}</div><div><strong>${esc(item.name)}</strong><small class="muted">${esc(item.model)}</small></div></div>`).join(""))}</div>
+      <div class="stack">${card("F5", "", `<div class="banner" style="${bannerStyle()}"><div><b>${esc(c.nom)}</b><span data-bind="motd">${esc(c.motd)}</span></div></div>`)}</div></div>`;
   }
-  const open = c.jobs.filter((job) => job.open).length;
-  return `<h1>${esc(c.nom)}</h1><p class="sub">Vue d'ensemble du serveur.</p><div class="grid"><div class="stack">${card("Ville", `${c.pnj.filter((item) => item.on).length} PNJ actifs`, street() + c.pnj.slice(0, 3).map((item) => `<div class="pnj${item.on ? "" : " off"}"><div class="dot">${I.pin}</div><div><strong>${esc(item.name)}</strong><small class="muted">${esc(item.model)}</small></div></div>`).join(""))}</div>
-    <div class="stack">${card("Serveur", "", `<div class="preview-logo"><img src="${esc(c.logo)}" alt="Logo"></div><div class="stats" style="margin-top:8px"><div class="stat"><small>Clients</small><b>${db.users.length}</b></div><div class="stat"><small>Métiers ouverts</small><b>${open}</b></div><div class="stat"><small>Slots</small><b>${c.slots}</b></div><div class="stat"><small>Clés actives</small><b>${db.licenses.filter((item) => item.status === "active").length}</b></div></div>`)}
-    ${card("F5", "", `<div class="banner" style="${bannerStyle()}"><div><b>${esc(c.nom)}</b><span>Menu personnel</span></div></div>`)}</div></div>`;
+  const money = db.licenses.filter((item) => item.status === "active").reduce((sum, item) => sum + planPrice(item.plan), 0);
+  return `<div class="page-head"><div><h1>Pilotage</h1><p class="sub">Tu as la main sur les serveurs, les clés, les clients et le compte manager.</p></div></div>
+    <div class="stats four"><div class="stat"><small>Serveurs clients</small><b>${db.users.length}</b></div><div class="stat"><small>Clés actives</small><b>${db.licenses.filter((item) => item.status === "active").length}</b></div><div class="stat"><small>Valeur active</small><b>${euros(money)}</b></div><div class="stat"><small>Comptes coupés</small><b>${db.users.filter((user) => user.disabled).length}</b></div></div>
+    <div class="grid"><div class="stack">${card("Serveurs", "Ouvre n'importe quelle ville sans quitter le compte manager.", serverRoster().slice(0, 4).join("") || "<p class='hint'>Aucun client pour le moment.</p>")}</div>
+    <div class="stack">${card("Actions", "", `<div class="stack-form"><button class="btn primary" data-page="keys" type="button">Générer une clé</button><button class="btn-line" data-page="users" type="button">Créer un client</button><button class="btn-line" data-page="account" type="button">Compte manager</button><button class="btn-line" data-page="servers" type="button">Tous les serveurs</button></div>`)}
+    ${card("Dernières clés", "", db.licenses.slice(0, 3).map((item) => `<div class="key">${esc(item.key)}</div><small class="muted">${esc((PLANS[item.plan] || [item.plan])[0])} · ${esc(item.email || "libre")}</small>`).join("<div style='height:8px'></div>") || "<p class='hint'>Aucune clé.</p>")}</div></div>`;
+}
+function serverRoster() {
+  const q = query.toLowerCase();
+  const rows = [];
+  if ("atelier".includes(q) || db.config.nom.toLowerCase().includes(q)) {
+    rows.push(`<article class="srv"><i class="stripe" style="--c:${esc(db.config.color)}"></i><div class="grow"><b>Atelier · ${esc(db.config.nom)}</b><small class="muted">Modèle des nouveaux serveurs</small></div><button class="btn primary" data-act="focus" data-email="" type="button">Contrôler</button></article>`);
+  }
+  db.users.filter((user) => `${user.email} ${user.server.nom} ${user.note}`.toLowerCase().includes(q)).forEach((user) => {
+    rows.push(`<article class="srv${user.disabled ? " off" : ""}"><i class="stripe" style="--c:${esc(user.server.color)}"></i><div class="grow"><b>${esc(user.server.nom)}</b><small class="muted">${esc(user.email)} · ${user.server.slots} slots${user.server.maintenance ? " · maintenance" : ""}${user.disabled ? " · compte coupé" : ""}</small></div><div class="row"><button class="btn primary" data-act="open-server" data-email="${esc(user.email)}" type="button">Contrôler</button><button class="btn-line" data-act="key-for" data-email="${esc(user.email)}" type="button">Clé</button></div></article>`);
+  });
+  return rows;
+}
+function servers() {
+  return `<div class="page-head"><div><h1>Serveurs</h1><p class="sub">Entre dans la ville d'un client et change-la en direct.</p></div></div><div id="list">${serverRoster().join("") || "<p class='hint'>Aucun serveur.</p>"}</div>`;
 }
 function server() {
-  return `<h1>Serveur</h1><p class="sub">Identité, Discord et boutique.</p>${card("", "", `<div class="fields">${field("Nom","nom")}${field("Nom CFX","cfx")}${field("Slots","slots","number")}${field("Argent de départ","startMoney","number")}${field("Discord","discord","url")}${field("ID application Discord","discordApi")}${field("Boutique","boutique","url")}${field("Guide","guide","url")}${field("Bouton Discord","showDiscord","bool")}${field("Bouton guide","showGuide","bool")}</div>`)}`;
+  return `<div class="page-head"><div><h1>Identité</h1><p class="sub">Nom, messages, Discord, maintenance et whitelist.</p></div></div>${scope()}${card("", "", `<div class="fields">${field("Nom","nom")}${field("Nom CFX","cfx")}${field("Slots","slots","number")}${field("Langue","lang","select",["fr","en","es"])}${field("Message de connexion","motd")}${field("Texte de bienvenue","welcome")}${field("Discord","discord","url")}${field("ID application Discord","discordApi")}${field("Texte rich presence","discordText")}${field("Logo Discord CDN","discordLogo","url")}${field("Boutique","boutique","url")}${field("Guide","guide","url")}${field("Bouton Discord","showDiscord","bool")}${field("Bouton guide","showGuide","bool")}${field("Maintenance","maintenance","bool")}${field("Message maintenance","maintenanceMsg")}${field("Whitelist","whitelist","bool")}</div>`)}`;
 }
 function look() {
-  const c = db.config;
-  return `<h1>Visuel</h1><p class="sub">Logo, bannière F5 et couleur. Colle une URL CDN.</p><div class="grid"><div>${card("", "", `<div class="fields">${field("Logo CDN","logo","url")}${field("Bannière F5 CDN","banner","url")}${field("Couleur","color","color")}${field("HEX","color")}${field("Style menu","style","select",["normal","advanced","flashfa"])}${field("Taille","size","select",["small","big"])}${field("Marker","marker","number")}</div>`)}</div>
-    <div>${card("Aperçu F5", `${esc(c.style)} · ${esc(c.size)}`, `<div class="preview-logo"><img alt="Logo" src="${esc(c.logo)}"></div><div class="menu-mock"><div class="banner" style="${bannerStyle()}"><div><b>${esc(c.nom)}</b><span>Menu personnel</span></div></div><div class="menu-item on"><span>Inventaire</span><span>›</span></div><div class="menu-item"><span>Portefeuille</span><span>›</span></div></div>`)}</div></div>`;
+  const c = cfg();
+  return `<div class="page-head"><div><h1>Visuel</h1><p class="sub">Logo, F5, écran de chargement et couleurs.</p></div></div>${scope()}<div class="grid"><div>${card("", "", `<div class="fields">${field("Logo CDN","logo","url")}${field("Bannière F5 CDN","banner","url")}${field("Écran de chargement CDN","loadscreen","url")}${field("Musique de chargement","loadMusic","url")}${field("Couleur","color","color")}${field("HEX","color")}${field("Couleur secondaire","color2","color")}${field("Couleur HUD","hud","color")}${field("Style menu","style","select",["normal","advanced","flashfa"])}${field("Taille","size","select",["small","big"])}${field("Marker","marker","number")}</div>`)}</div>
+    <div>${card("Aperçu", `${esc(c.style)} · ${esc(c.size)}`, `<div class="preview-logo"><img alt="Logo" src="${esc(c.logo)}"></div><div class="menu-mock"><div class="banner" style="${bannerStyle()}"><div><b data-bind="nom">${esc(c.nom)}</b><span data-bind="motd">${esc(c.motd)}</span></div></div><div class="menu-item on"><span>Inventaire</span><span>›</span></div><div class="menu-item"><span>Portefeuille</span><span>›</span></div></div>`)}</div></div>`;
+}
+function eco() {
+  return `<div class="page-head"><div><h1>Économie</h1><p class="sub">Salaires, taxe, inventaire et véhicules.</p></div></div>${scope()}${card("", "", `<div class="fields">${field("Argent de départ","startMoney","number")}${field("Monnaie","currency","select",["€","$"])}${field("Salaire","paycheck","number")}${field("Salaire toutes les (min)","paycheckMin","number")}${field("Nom VIP","vip")}${field("Salaire VIP","vipPay","number")}${field("Taxe (%)","tax","number")}${field("Poids inventaire","invWeight","number")}${field("Véhicules max","maxVehicles","number")}${field("Items de départ","starter")}</div>`)}`;
+}
+function world() {
+  return `<div class="page-head"><div><h1>Monde</h1><p class="sub">Spawn, météo, faim, radio et restart.</p></div></div>${scope()}${card("", "", `<div class="fields">${field("Spawn X","spawnX","number")}${field("Spawn Y","spawnY","number")}${field("Spawn Z","spawnZ","number")}${field("Spawn H","spawnH","number")}${field("Job par défaut","defaultJob")}${field("Météo sud","weatherSouth","select",WEATHER)}${field("Météo nord","weatherNorth","select",WEATHER)}${field("Météo dynamique","weatherDynamic","bool")}${field("Heure","hour","number")}${field("Faim et soif","hunger","bool")}${field("Portée voix","voice","number")}${field("Blips métiers","blips","bool")}${field("Téléphone","phone","bool")}${field("Radio","radio","bool")}${field("Nom de la radio","radioName")}${field("Essence","fuel","bool")}${field("Vitesse","speedUnit","select",["km/h","mph"])}${field("Kick AFK (min)","afk","number")}${field("Heure de restart","restart")}</div>`)}`;
+}
+function jobCard(job) {
+  return `<article class="pnj"><div class="dot">${I.job}</div><label class="field"><span>Nom</span><input data-job="${job.id}" value="${esc(job.label)}"></label><div><label class="field"><span>État</span><select data-job-open="${job.id}"><option value="true" ${job.open ? "selected" : ""}>Ouvert</option><option value="false" ${job.open ? "" : "selected"}>Fermé</option></select></label><button class="icon-btn" data-act="job-del" data-id="${job.id}" type="button">${I.trash}</button></div></article>`;
 }
 function jobs() {
+  return `<div class="page-head"><div><h1>Métiers</h1><p class="sub">Ouverture et nom affiché en ville.</p></div><button class="btn primary" data-act="add-job" type="button">Ajouter</button></div>${scope()}<div id="list">${jobsList()}</div>`;
+}
+function jobsList() {
   const q = query.toLowerCase();
-  const list = db.config.jobs.filter((job) => job.label.toLowerCase().includes(q));
-  return `<h1>Métiers</h1><p class="sub">Ouverture et nom affiché en ville.</p><div id="list">${list.map((job) => `<article class="pnj"><div class="dot">${I.job}</div><label class="field"><span>Nom</span><input data-job="${job.id}" value="${esc(job.label)}"></label><label class="field"><span>État</span><select data-job-open="${job.id}"><option value="true" ${job.open ? "selected" : ""}>Ouvert</option><option value="false" ${job.open ? "" : "selected"}>Fermé</option></select></label></article>`).join("") || '<p class="hint">Aucun métier.</p>'}</div>`;
+  return cfg().jobs.filter((job) => job.label.toLowerCase().includes(q)).map(jobCard).join("") || "<p class='hint'>Aucun métier.</p>";
 }
 function pedCard(item) {
   return `<article class="pnj${item.on ? "" : " off"}" data-id="${item.id}"><div class="dot">${I.pin}</div><div class="fields">
@@ -369,48 +558,75 @@ function pedCard(item) {
   </div><div><button class="icon-btn" data-act="ped-toggle" data-id="${item.id}" type="button">${item.on ? I.vol : I.mute}</button><button class="icon-btn" data-act="ped-del" data-id="${item.id}" type="button">${I.trash}</button></div></article>`;
 }
 function pnj() {
-  const q = query.toLowerCase();
-  const list = db.config.pnj.filter((item) => `${item.name} ${item.model}`.toLowerCase().includes(q));
-  return `<h1>PNJ en ville</h1><p class="sub">Modèle, position et animation.</p>${street()}<div class="head"><h2>${list.length} points</h2><button class="btn primary" data-act="add-ped" type="button" style="width:auto">Ajouter</button></div><div id="list">${list.map(pedCard).join("")}</div>`;
+  return `<div class="page-head"><div><h1>PNJ en ville</h1><p class="sub">Modèle, position et animation.</p></div><button class="btn primary" data-act="add-ped" type="button">Ajouter</button></div>${scope()}${street()}<div id="list">${pnjList()}</div>`;
 }
-function weather() {
-  return `<h1>Météo</h1><p class="sub">Sud, nord et heure du serveur.</p>${card("", "", `<div class="fields">${field("Sud","weatherSouth","select",WEATHER)}${field("Nord","weatherNorth","select",WEATHER)}${field("Météo dynamique","weatherDynamic","bool")}${field("Heure","hour","number")}</div>`)}`;
+function pnjList() {
+  const q = query.toLowerCase();
+  return cfg().pnj.filter((item) => `${item.name} ${item.model}`.toLowerCase().includes(q)).map(pedCard).join("") || "<p class='hint'>Aucun PNJ.</p>";
 }
 function system() {
-  return `<h1>Système</h1><p class="sub">Options du cœur OzonaProject.</p>${card("", "", `<div class="fields">${field("Drugsbuilder","drugsbuilder","bool")}${field("Pêche","fishing","bool")}${field("Braquage ATM","atm","bool")}${field("Clés véhicule en item","keys","bool")}${field("Crochetage","lockpick","bool")}${field("FiveGuard","fiveguard","bool")}${field("IP dans la console","showIp","bool")}${field("Notif métiers","notifJobs","bool")}</div>`)}`;
+  return `<div class="page-head"><div><h1>Sécurité</h1><p class="sub">Options du cœur OzonaProject.</p></div></div>${scope()}${card("", "", `<div class="fields">${field("Drugsbuilder","drugsbuilder","bool")}${field("Pêche","fishing","bool")}${field("Braquage ATM","atm","bool")}${field("Clés véhicule en item","keys","bool")}${field("Crochetage","lockpick","bool")}${field("FiveGuard","fiveguard","bool")}${field("IP dans la console","showIp","bool")}${field("Notif métiers","notifJobs","bool")}</div>`)}`;
 }
 function logs() {
-  return `<h1>Logs</h1><p class="sub">Webhooks Discord et icône CDN.</p>${card("", "", `<div class="fields">${field("Connexion","logConnect","url")}${field("Mort","logDeath","url")}${field("Icône CDN","logIcon","url","")}</div>`)}`;
+  return `<div class="page-head"><div><h1>Logs</h1><p class="sub">Webhooks Discord et icône CDN.</p></div></div>${scope()}${card("", "", `<div class="fields">${field("Connexion","logConnect","url")}${field("Mort","logDeath","url")}${field("Icône CDN","logIcon","url")}</div>`)}`;
+}
+function statusTag(item) {
+  const map = { active: ["live", "Active"], revoked: ["dead", "Révoquée"], expired: ["dead", "Expirée"] };
+  const tag = map[item.status] || ["", "Disponible"];
+  return `<span class="tag ${tag[0]}">${tag[1]}</span>`;
 }
 function licenseCard(item, wide) {
   const plan = PLANS[item.plan] || [item.plan];
-  return `<article class="license"><div class="head"><div><strong>${esc(plan[0])}</strong> <span class="tag ${item.status === "active" ? "live" : ""}">${item.status === "active" ? "Active" : item.status === "revoked" ? "Révoquée" : "Disponible"}</span><div class="key">${esc(item.key)}</div><small class="muted">${item.email ? esc(item.email) : "Non attribuée"}${item.plan === "lifetime" ? " · 250 €" : ""}</small></div>
-    <div class="row"><button class="btn-line" data-act="copy" data-key="${esc(item.key)}" type="button">Copier</button>${wide && item.status !== "revoked" ? `<button class="btn-line" data-act="revoke" data-id="${item.id}" type="button">Révoquer</button>` : ""}</div></div></article>`;
+  const owners = `<select data-lic-email="${item.id}"><option value="">Non attribuée</option>${db.users.map((user) => `<option value="${esc(user.email)}" ${item.email === user.email ? "selected" : ""}>${esc(user.email)}</option>`).join("")}</select>`;
+  return `<article class="license"><div class="grow"><div class="row"><strong>${esc(plan[0])}</strong> ${statusTag(item)} <span class="tag">${euros(planPrice(item.plan))}</span></div><div class="key">${esc(item.key)}</div><small class="muted">${remain(item)}${item.ip ? " · IP " + esc(item.ip) : ""}</small>
+    ${wide ? `<div class="fields" style="margin-top:8px"><label class="field"><span>Durée</span><select data-lic-plan="${item.id}">${Object.entries(PLANS).map(([id, info]) => `<option value="${id}" ${item.plan === id ? "selected" : ""}>${info[0]}</option>`).join("")}</select></label><label class="field"><span>Compte</span>${owners}</label></div>` : `<small class="muted">${item.email ? esc(item.email) : "Non attribuée"}</small>`}
+    </div><div class="row">${wide ? `<button class="btn-line" data-act="renew" data-id="${item.id}" type="button">Relancer</button><button class="btn-line" data-act="reset-ip" data-id="${item.id}" type="button">Libérer IP</button>` : ""}<button class="btn-line" data-act="copy" data-key="${esc(item.key)}" type="button">Copier</button>${wide && item.status !== "revoked" ? `<button class="btn danger" data-act="revoke" data-id="${item.id}" type="button">Révoquer</button>` : ""}${wide && item.status === "revoked" ? `<button class="btn-line" data-act="restore" data-id="${item.id}" type="button">Rétablir</button>` : ""}${wide ? `<button class="icon-btn" data-act="key-del" data-id="${item.id}" type="button">${I.trash}</button>` : ""}</div></article>`;
 }
 function keys() {
-  return `<h1>Clés</h1><p class="sub">7j, 30j, 3 mois, 1 an ou LifeTime à 250 €. Le client doit déjà avoir un compte.</p>
-    <form id="new-key" class="card"><div class="fields"><label class="field"><span>Durée</span><select name="plan">${Object.entries(PLANS).map(([id, info]) => `<option value="${id}">${info[0]}${id === "lifetime" ? " · 250 €" : ""}</option>`).join("")}</select></label><label class="field"><span>Attribuer à</span><input name="email" type="email" placeholder="client@email.com"></label></div><button class="btn primary" style="width:auto;margin-top:8px" type="submit">Générer</button></form>
-    <div style="height:10px"></div>${db.licenses.map((item) => licenseCard(item, true)).join("")}`;
+  return `<div class="page-head"><div><h1>Clés</h1><p class="sub">Tarifs, préfixe, plafond, puis génération. Tout est enregistré en direct.</p></div></div>
+    ${card("Réglage des clés", "Ces prix et cette règle servent à chaque nouvelle clé.", `<div class="fields">${shopField("Préfixe","prefix")}${shopField("Clés sans compte","allowOpen","bool")}${shopField("Max par client","maxPerClient","number")}${shopField("Prix 7 jours","price7","number")}${shopField("Prix 30 jours","price30","number")}${shopField("Prix 3 mois","price3m","number")}${shopField("Prix 1 an","price1an","number")}${shopField("Prix LifeTime","priceLife","number")}</div>`)}
+    <form id="new-key" class="card" style="margin-top:10px"><div class="head"><div><h2>Générer</h2><p class="hint">Le compte doit déjà exister si tu l'attribues.</p></div></div><div class="fields"><label class="field"><span>Durée</span><select name="plan">${Object.entries(PLANS).map(([id, info]) => `<option value="${id}">${info[0]} · ${euros(planPrice(id))}</option>`).join("")}</select></label><label class="field"><span>Attribuer à</span><input name="email" type="email" value="${esc(prefill)}" placeholder="client@email.com"></label></div><button class="btn primary" style="margin-top:8px" type="submit">Générer la clé</button></form>
+    <div style="height:10px"></div><div id="list">${keysList()}</div>`;
+}
+function keysList() {
+  const q = query.toLowerCase();
+  return db.licenses.filter((item) => `${item.key} ${item.email} ${item.plan}`.toLowerCase().includes(q)).map((item) => licenseCard(item, true)).join("") || "<p class='hint'>Aucune clé.</p>";
 }
 function users() {
+  return `<div class="page-head"><div><h1>Clients</h1><p class="sub">Création, coupure, mot de passe et serveur. Aucun mot de passe n'est réaffiché.</p></div></div>
+    <form id="new-user" class="card"><div class="head"><div><h2>Nouveau compte</h2></div></div><div class="fields"><label class="field"><span>E-mail</span><input name="email" type="email" required></label><label class="field"><span>Nom du serveur</span><input name="city" placeholder="GtaNew"></label><label class="field"><span>Mot de passe</span><input name="pass" type="password" minlength="8" autocomplete="new-password" required></label><label class="field"><span>Confirmer</span><input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label></div><button class="btn primary" style="margin-top:8px" type="submit">Créer le client</button></form>
+    <div style="height:10px"></div><div id="list">${usersList()}</div>`;
+}
+function usersList() {
   const q = query.toLowerCase();
-  const list = db.users.filter((user) => user.email.includes(q));
-  return `<h1>Clients</h1><p class="sub">${db.users.length} compte${db.users.length > 1 ? "s" : ""}.</p><div id="list">${list.map((user) => `<article class="license"><strong>${esc(user.email)}</strong><small class="muted">${db.licenses.filter((item) => item.email === user.email && item.status === "active").length} licence active</small></article>`).join("") || '<p class="hint">Aucun client pour le moment.</p>'}</div>`;
+  return db.users.filter((user) => `${user.email} ${user.note} ${user.server.nom}`.toLowerCase().includes(q)).map((user) => `<article class="person${user.disabled ? " off" : ""}"><div class="grow">
+      <b>${esc(user.email)}</b><small class="muted">${esc(user.server.nom)} · ${db.licenses.filter((item) => item.email === user.email && item.status === "active").length} licence active · ${user.disabled ? "coupé" : "actif"}</small>
+      <label class="field" style="margin-top:8px"><span>Note interne</span><input data-user="${esc(user.email)}" value="${esc(user.note)}" placeholder="Visible seulement par le manager"></label>
+      <form class="reset-pass row" data-email="${esc(user.email)}" style="margin-top:8px"><input name="pass" type="password" minlength="8" placeholder="Nouveau mot de passe" autocomplete="new-password" required style="flex:1;background:#0c0d12;border:1px solid var(--line);border-radius:9px;padding:8px 10px"><button class="btn-line" type="submit">Changer</button></form>
+      <div class="row" style="margin-top:8px"><button class="btn primary" data-act="open-server" data-email="${esc(user.email)}" type="button">Ouvrir le serveur</button><button class="btn-line" data-act="key-for" data-email="${esc(user.email)}" type="button">Générer une clé</button><button class="btn-line" data-act="disable" data-email="${esc(user.email)}" type="button">${user.disabled ? "Rétablir" : "Couper"}</button><button class="btn-line" data-act="wipe" data-email="${esc(user.email)}" type="button">Révoquer les clés</button><button class="btn-line" data-act="copy-atelier" data-email="${esc(user.email)}" type="button">Copier l'atelier</button><button class="btn danger" data-act="user-del" data-email="${esc(user.email)}" type="button">Supprimer</button></div>
+    </div></article>`).join("") || "<p class='hint'>Aucun client pour le moment.</p>";
 }
 function license() {
   const mine = db.licenses.filter((item) => item.email === db.session.email);
-  return `<h1>Ma licence</h1><p class="sub">Colle la clé reçue du manager.</p><form id="redeem" class="card"><label class="field"><span>Clé</span><input name="key" placeholder="OZONA_..." required></label><button class="btn primary" style="width:auto;margin-top:8px" type="submit">Activer</button></form><div style="height:10px"></div>${mine.map((item) => licenseCard(item, false)).join("") || '<p class="hint">Aucune licence sur ce compte.</p>'}`;
+  return `<div class="page-head"><div><h1>Ma licence</h1><p class="sub">Colle la clé reçue du manager.</p></div></div><form id="redeem" class="card"><label class="field"><span>Clé</span><input name="key" placeholder="OZONA_..." required></label><button class="btn primary" style="margin-top:8px" type="submit">Activer</button></form><div style="height:10px"></div>${mine.map((item) => licenseCard(item, false)).join("") || "<p class='hint'>Aucune licence sur ce compte.</p>"}`;
 }
 function account() {
-  const who = manager() ? db.manager.username : db.session.email;
-  return `<h1>Mon compte</h1><p class="sub">${manager() ? "Identifiant" : "E-mail"} : ${esc(who)}</p>${card("Mot de passe", "", `<form id="pass" class="stack-form"><label class="field"><span>Mot de passe actuel</span><input name="current" type="password" required></label><label class="field"><span>Nouveau</span><input name="next" type="password" minlength="8" required></label><button class="btn primary" style="width:auto" type="submit">Mettre à jour</button></form>`)}`;
+  if (!manager()) {
+    return `<div class="page-head"><div><h1>Mon compte</h1><p class="sub">${esc(db.session.email)}</p></div></div>${card("Mot de passe", "Il n'est jamais réaffiché.", `<form id="pass" class="stack-form"><label class="field"><span>Mot de passe actuel</span><input name="current" type="password" autocomplete="current-password" required></label><label class="field"><span>Nouveau</span><input name="next" type="password" minlength="8" autocomplete="new-password" required></label><button class="btn primary" type="submit">Mettre à jour</button></form>`)}`;
+  }
+  return `<div class="page-head"><div><h1>Compte manager</h1><p class="sub">Identifiant, nom affiché et mot de passe. Rien n'est écrit en clair sur le panel.</p></div></div>
+    <div class="grid"><div class="stack">${card("Identifiant", "", `<form id="ident" class="stack-form"><label class="field"><span>Nom affiché</span><input name="name" value="${esc(db.manager.name || "")}" required></label><label class="field"><span>Identifiant</span><input name="username" value="${esc(db.manager.username)}" autocomplete="username" required></label><label class="field"><span>Mot de passe actuel</span><input name="current" type="password" autocomplete="current-password" required></label><button class="btn primary" type="submit">Enregistrer l'identifiant</button></form>`)}</div>
+    <div class="stack">${card("Mot de passe", "Saisi une fois, puis masqué.", `<form id="pass" class="stack-form"><label class="field"><span>Mot de passe actuel</span><input name="current" type="password" autocomplete="current-password" required></label><label class="field"><span>Nouveau</span><input name="next" type="password" minlength="8" autocomplete="new-password" required></label><button class="btn primary" type="submit">Mettre à jour</button></form>`)}
+    ${card("Sauvegarde", "Fichier sans mot de passe.", `<button class="btn-line" data-act="backup" type="button">Télécharger la base</button>`)}</div></div>`;
 }
 function makeKey() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-  return `OZONA_${hex.slice(0,8)}_${hex.slice(8,12)}_${hex.slice(12,16)}_${hex.slice(16,20)}_${hex.slice(20)}`;
+  const prefix = String(db.keyShop.prefix || "OZONA").toUpperCase().replace(/[^A-Z0-9]/g, "") || "OZONA";
+  return `${prefix}_${hex.slice(0, 8)}_${hex.slice(8, 12)}_${hex.slice(12, 16)}_${hex.slice(16, 20)}_${hex.slice(20)}`;
 }
+function findUser(email) { return db.users.find((user) => user.email === email); }
 function submitAuth(form) {
   const id = form.login.value.trim();
   const pass = form.pass.value;
@@ -421,7 +637,7 @@ function submitAuth(form) {
     if (!email.includes("@")) { authError = "E-mail invalide."; render(); return; }
     if (form.confirm.value !== pass) { authError = "Les mots de passe ne correspondent pas."; render(); return; }
     if (db.users.some((user) => user.email === email)) { authError = "Cet e-mail est déjà utilisé."; render(); return; }
-    db.users.push({ email, pass: passHash(pass) });
+    db.users.push(blankUser(email, pass));
     db.session = { role: "client", email };
     page = "dash"; persist(); sfx("save"); render(); return;
   }
@@ -432,16 +648,33 @@ function submitAuth(form) {
     const email = id.toLowerCase();
     const user = db.users.find((item) => item.email === email);
     if (!user || user.pass !== passHash(pass)) { authError = "E-mail ou mot de passe incorrect."; sfx("del"); render(); return; }
+    if (user.disabled) { authError = "Ce compte est coupé par le manager."; sfx("del"); render(); return; }
     db.session = { role: "client", email };
   }
   page = "dash"; persist(); sfx("nav"); render();
 }
+function luaQuote(value) { return `"${String(value ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`; }
 function luaText() {
-  const c = db.config;
-  const hex = c.color.replace("#", "");
+  const c = cfg();
+  const hex = String(c.color || "#dc1428").replace("#", "");
   const full = hex.length === 3 ? hex.split("").map((ch) => ch + ch).join("") : hex;
   const n = parseInt(full, 16) || 0;
-  return [`ConfigServ.nom = "${c.nom}"`,`ConfigServ.serverCfx = "${c.cfx}"`,`ConfigServ.maxSlots = ${Number(c.slots)}`,`ConfigServ.urldiscord = "${c.discord}"`,`ConfigServ.urlBoutique = "${c.boutique}"`,`ConfigServ.StaffInfo.logoUrl = "${c.logo}"`,`ConfigServ.DefaultMenuStyle = "${c.style}"`,`ConfigServ.DefaultMenuSize = "${c.size}"`,`ConfigServ.Color.HEX = "${c.color}"`,`ConfigServ.Color.R = ${(n >> 16) & 255}`,`ConfigServ.Color.G = ${(n >> 8) & 255}`,`ConfigServ.Color.B = ${n & 255}`,`ConfigServ.PayCheck = ${Number(c.paycheck)}`,`ConfigServ.NomDuVIP = "${c.vip}"`,`ConfigServ.drugsbuilder = ${c.drugsbuilder}`,`ConfigServ.Fiveguard = ${c.fiveguard}`].join("\n");
+  const lines = {
+    nom: c.nom, serverCfx: c.cfx, maxSlots: Number(c.slots), urldiscord: c.discord, urlBoutique: c.boutique,
+    "StaffInfo.logoUrl": c.logo, DefaultMenuStyle: c.style, DefaultMenuSize: c.size, "Color.HEX": c.color,
+    "Color.R": (n >> 16) & 255, "Color.G": (n >> 8) & 255, "Color.B": n & 255, PayCheck: Number(c.paycheck),
+    NomDuVIP: c.vip, drugsbuilder: !!c.drugsbuilder, Fiveguard: !!c.fiveguard, Motd: c.motd, Welcome: c.welcome,
+    Maintenance: !!c.maintenance, Whitelist: !!c.whitelist, Color2: c.color2, Hud: c.hud, Loadscreen: c.loadscreen,
+    SpawnX: Number(c.spawnX), SpawnY: Number(c.spawnY), SpawnZ: Number(c.spawnZ), Tax: Number(c.tax),
+    InvWeight: Number(c.invWeight), MaxVehicles: Number(c.maxVehicles), VipPay: Number(c.vipPay), Restart: c.restart
+  };
+  return Object.entries(lines).map(([key, value]) => `ConfigServ.${key} = ${typeof value === "number" || typeof value === "boolean" ? value : luaQuote(value)}`).join("\n");
+}
+function setFocus(email) {
+  db.focus = email || null;
+  page = "server";
+  persist();
+  render();
 }
 document.body.addEventListener("click", (event) => {
   const gateBtn = event.target.closest("[data-gate]");
@@ -451,22 +684,51 @@ document.body.addEventListener("click", (event) => {
   const act = event.target.closest("[data-act]");
   if (!act) return;
   const id = Number(act.dataset.id);
-  if (act.dataset.act === "logout") { db.session = null; page = "dash"; gate = "client"; authError = ""; persist(); render(); return; }
-  if (act.dataset.act === "sound") { db.config.sound = !db.config.sound; persist(); sfx("nav"); render(); return; }
-  if (act.dataset.act === "save") { persist("Configuration enregistrée"); return; }
-  if (act.dataset.act === "export") {
-    const blob = new Blob([JSON.stringify(db.config, null, 2)], { type: "application/json" });
+  const email = act.dataset.email || "";
+  const name = act.dataset.act;
+  if (name === "logout") { db.session = null; db.focus = null; page = "dash"; gate = "client"; authError = ""; persist(); render(); return; }
+  if (!manager() && ["backup","focus","open-server","key-for","revoke","restore","renew","reset-ip","key-del","disable","wipe","copy-atelier","user-del"].includes(name)) return;
+  if (name === "sound") { db.ui.sound = !db.ui.sound; persist(); sfx("nav"); render(); return; }
+  if (name === "export") {
+    const blob = new Blob([JSON.stringify(cfg(), null, 2)], { type: "application/json" });
     const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "ozona-config.json"; link.click(); sfx("save"); return;
   }
-  if (act.dataset.act === "lua") { navigator.clipboard.writeText(luaText()); toast("Lua copié"); sfx("save"); return; }
-  if (act.dataset.act === "copy") { navigator.clipboard.writeText(act.dataset.key); toast("Clé copiée"); sfx("nav"); return; }
-  if (act.dataset.act === "add-ped") {
-    db.config.pnj.push({ id: Date.now(), name: "Nouveau PNJ", model: "a_m_y_business_01", x: 215.7, y: -810.2, z: 30.7, h: 160, anim: ANIMS[0], on: true });
-    sfx("nav"); render(); return;
+  if (name === "backup") {
+    const copy = clone(db);
+    delete copy.manager.pass; delete copy.session;
+    copy.users.forEach((user) => { delete user.pass; });
+    const blob = new Blob([JSON.stringify(copy, null, 2)], { type: "application/json" });
+    const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "ozona-base.json"; link.click(); sfx("save"); return;
   }
-  if (act.dataset.act === "ped-del") { db.config.pnj = db.config.pnj.filter((item) => item.id !== id); sfx("del"); render(); return; }
-  if (act.dataset.act === "ped-toggle") { const item = db.config.pnj.find((entry) => entry.id === id); item.on = !item.on; sfx("nav"); render(); return; }
-  if (act.dataset.act === "revoke") { const item = db.licenses.find((entry) => entry.id === id); item.status = "revoked"; persist("Clé révoquée"); render(); }
+  if (name === "lua") { navigator.clipboard.writeText(luaText()); toast("Lua copié"); sfx("save"); return; }
+  if (name === "copy") { navigator.clipboard.writeText(act.dataset.key); toast("Clé copiée"); sfx("nav"); return; }
+  if (name === "focus" || name === "open-server") { sfx("nav"); setFocus(email); return; }
+  if (name === "key-for") { prefill = email; page = "keys"; sfx("nav"); render(); return; }
+  if (name === "add-ped") {
+    cfg().pnj.push({ id: Date.now(), name: "Nouveau PNJ", model: "a_m_y_business_01", x: 215.7, y: -810.2, z: 30.7, h: 160, anim: ANIMS[0], on: true });
+    persist(); sfx("nav"); render(); return;
+  }
+  if (name === "add-job") { cfg().jobs.push({ id: Date.now(), label: "Nouveau métier", open: true }); persist(); sfx("nav"); render(); return; }
+  if (name === "ped-del") { cfg().pnj = cfg().pnj.filter((item) => item.id !== id); persist(); sfx("del"); render(); return; }
+  if (name === "job-del") { cfg().jobs = cfg().jobs.filter((item) => item.id !== id); persist(); sfx("del"); render(); return; }
+  if (name === "ped-toggle") { const item = cfg().pnj.find((entry) => entry.id === id); if (item) item.on = !item.on; persist(); sfx("nav"); render(); return; }
+  if (name === "revoke") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.status = "revoked"; persist("Clé révoquée"); render(); return; }
+  if (name === "restore") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.status = item.email ? "active" : "available"; persist("Clé rétablie"); render(); return; }
+  if (name === "renew") { const item = db.licenses.find((entry) => entry.id === id); if (item) { item.activated = Date.now(); if (item.status !== "revoked") item.status = "active"; } persist("Durée relancée"); render(); return; }
+  if (name === "reset-ip") { const item = db.licenses.find((entry) => entry.id === id); if (item) item.ip = ""; persist("IP libérée"); render(); return; }
+  if (name === "key-del") {
+    if (!confirm("Supprimer cette clé ?")) return;
+    db.licenses = db.licenses.filter((item) => item.id !== id); persist("Clé supprimée"); sfx("del"); render(); return;
+  }
+  if (name === "disable") { const user = findUser(email); if (user) user.disabled = !user.disabled; persist(user && user.disabled ? "Compte coupé" : "Compte rétabli"); render(); return; }
+  if (name === "wipe") { db.licenses.forEach((item) => { if (item.email === email) item.status = "revoked"; }); persist("Clés révoquées"); render(); return; }
+  if (name === "copy-atelier") { const user = findUser(email); if (user) user.server = clone(db.config); persist("Atelier copié sur ce serveur"); render(); return; }
+  if (name === "user-del") {
+    if (!confirm("Supprimer ce compte client ?")) return;
+    db.users = db.users.filter((user) => user.email !== email);
+    if (db.focus === email) db.focus = null;
+    persist("Compte supprimé"); sfx("del"); render();
+  }
 });
 document.body.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -474,16 +736,40 @@ document.body.addEventListener("submit", (event) => {
   if (form.id === "auth") return submitAuth(form);
   if (form.id === "new-key") {
     const email = form.email.value.trim().toLowerCase();
-    if (email && !db.users.some((user) => user.email === email)) { toast("Ce client n'a pas de compte"); sfx("del"); return; }
-    db.licenses.unshift({ id: Date.now(), key: makeKey(), plan: form.plan.value, status: email ? "active" : "available", email, ip: "" });
-    persist("Clé générée"); render(); return;
+    if (email && !findUser(email)) { toast("Ce client n'a pas de compte"); sfx("del"); return; }
+    if (!email && !db.keyShop.allowOpen) { toast("Une attribution est obligatoire"); sfx("del"); return; }
+    if (email && db.licenses.filter((item) => item.email === email && item.status !== "revoked").length >= Number(db.keyShop.maxPerClient)) { toast("Plafond de clés atteint"); sfx("del"); return; }
+    db.licenses.unshift({ id: Date.now(), key: makeKey(), plan: form.plan.value, status: email ? "active" : "available", email, ip: "", activated: email ? Date.now() : null });
+    prefill = ""; persist("Clé générée"); render(); return;
+  }
+  if (form.id === "new-user") {
+    const email = form.email.value.trim().toLowerCase();
+    if (!email.includes("@") || form.pass.value.length < 8) { toast("E-mail ou mot de passe invalide"); sfx("del"); return; }
+    if (form.confirm.value !== form.pass.value) { toast("Les mots de passe ne correspondent pas"); sfx("del"); return; }
+    if (findUser(email)) { toast("Cet e-mail existe déjà"); sfx("del"); return; }
+    db.users.push(blankUser(email, form.pass.value, form.city.value.trim()));
+    persist("Compte client créé"); render(); return;
+  }
+  if (form.classList.contains("reset-pass")) {
+    const user = findUser(form.dataset.email);
+    if (!user || form.pass.value.length < 8) { toast("8 caractères minimum"); sfx("del"); return; }
+    user.pass = passHash(form.pass.value);
+    persist("Mot de passe du client mis à jour"); form.reset(); return;
   }
   if (form.id === "redeem") {
     const key = form.key.value.trim();
     const item = db.licenses.find((entry) => entry.key === key);
     if (!item || item.status === "revoked") { toast("Clé invalide"); sfx("del"); return; }
     if (item.email && item.email !== db.session.email) { toast("Cette clé est attribuée à un autre compte"); sfx("del"); return; }
-    item.email = db.session.email; item.status = "active"; persist("Licence activée"); render(); return;
+    item.email = db.session.email; item.status = "active"; item.activated = item.activated || Date.now();
+    persist("Licence activée"); render(); return;
+  }
+  if (form.id === "ident") {
+    const username = form.username.value.trim().toLowerCase();
+    if (!/^[a-z0-9._-]{3,24}$/.test(username)) { toast("Identifiant : 3 à 24 caractères"); sfx("del"); return; }
+    if (passHash(form.current.value) !== db.manager.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
+    db.manager.username = username; db.manager.name = form.name.value.trim() || username;
+    persist("Compte manager mis à jour"); render(); return;
   }
   if (form.id === "pass") {
     const current = passHash(form.current.value);
@@ -497,54 +783,81 @@ document.body.addEventListener("submit", (event) => {
       if (!user || current !== user.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
       user.pass = passHash(next);
     }
-    persist("Mot de passe mis à jour");
+    persist("Mot de passe mis à jour"); form.reset();
   }
 });
 document.body.addEventListener("input", onEdit);
 document.body.addEventListener("change", onEdit);
+function readValue(input) {
+  if (input.dataset.bool) return input.value === "true";
+  if (input.type === "number" || input.dataset.num) return Number(input.value);
+  return input.value;
+}
 function onEdit(event) {
   const input = event.target;
+  if (input.tagName === "SELECT" && event.type !== "change") return;
+  if (event.type === "change" && input.tagName !== "SELECT" && input.type !== "color") return;
   if (input.id === "q") {
     query = input.value;
     const list = document.getElementById("list");
     if (!list) return;
-    const html = page === "pnj" ? pnjList() : page === "jobs" ? jobs().match(/<div id="list">([\s\S]*)<\/div>$/)?.[1] || "" : page === "users" ? users().match(/<div id="list">([\s\S]*)<\/div>$/)?.[1] || "" : "";
-    if (page === "pnj") list.innerHTML = pnjList();
-    else list.innerHTML = html;
+    const html = { pnj: pnjList, jobs: jobsList, users: usersList, keys: keysList, servers: () => serverRoster().join("") }[page];
+    if (html) list.innerHTML = html();
     return;
   }
+  if (input.id === "focus") { db.focus = input.value || null; persist(); render(); return; }
   if (input.dataset.k) {
-    db.config[input.dataset.k] = input.dataset.bool ? input.value === "true" : input.type === "number" ? Number(input.value) : input.value;
-    if (["color","nom","logo","banner"].includes(input.dataset.k)) {
+    cfg()[input.dataset.k] = readValue(input);
+    if (["color","color2","nom","logo","banner","motd"].includes(input.dataset.k)) {
       paint();
       document.querySelectorAll(".banner").forEach((el) => el.setAttribute("style", bannerStyle()));
-      document.querySelectorAll(".banner b").forEach((el) => { el.textContent = db.config.nom; });
-      document.querySelectorAll(".preview-logo img").forEach((img) => { if (db.config.logo) img.src = db.config.logo; });
-      if (page === "dash") { const title = document.querySelector(".content h1"); if (title) title.textContent = db.config.nom; }
+      document.querySelectorAll("[data-bind]").forEach((el) => { el.textContent = cfg()[el.dataset.bind] ?? ""; });
+      document.querySelectorAll(".preview-logo img").forEach((img) => { if (cfg().logo) img.src = cfg().logo; });
     }
-    if (event.type === "change" && input.tagName === "SELECT") render();
+    if (input.tagName === "SELECT") { persist(); render(); }
+    else liveSave();
     return;
   }
-  const card = input.closest("[data-id]");
-  if (card && input.dataset.p) {
-    const item = db.config.pnj.find((entry) => entry.id === Number(card.dataset.id));
-    item[input.dataset.p] = input.type === "number" ? Number(input.value) : input.value;
+  if (input.dataset.shop) {
+    db.keyShop[input.dataset.shop] = readValue(input);
+    if (input.tagName === "SELECT") { persist(); render(); } else liveSave();
+    return;
+  }
+  const box = input.closest("[data-id]");
+  if (box && input.dataset.p) {
+    const item = cfg().pnj.find((entry) => entry.id === Number(box.dataset.id));
+    if (item) item[input.dataset.p] = input.type === "number" ? Number(input.value) : input.value;
+    if (input.tagName === "SELECT") { persist(); render(); } else liveSave();
+    return;
   }
   if (input.dataset.job) {
-    const job = db.config.jobs.find((entry) => entry.id === Number(input.dataset.job));
+    const job = cfg().jobs.find((entry) => entry.id === Number(input.dataset.job));
     if (job) job.label = input.value;
+    liveSave();
   }
   if (input.dataset.jobOpen) {
-    const job = db.config.jobs.find((entry) => entry.id === Number(input.dataset.jobOpen));
+    const job = cfg().jobs.find((entry) => entry.id === Number(input.dataset.jobOpen));
     if (job) job.open = input.value === "true";
+    persist();
+  }
+  if (input.dataset.user) {
+    const user = findUser(input.dataset.user);
+    if (user) user.note = input.value;
+    liveSave();
+  }
+  if (input.dataset.licEmail || input.dataset.licPlan) {
+    const item = db.licenses.find((entry) => entry.id === Number(input.dataset.licEmail || input.dataset.licPlan));
+    if (!item) return;
+    if (input.dataset.licEmail) {
+      item.email = input.value;
+      if (item.email && item.status === "available") { item.status = "active"; item.activated = item.activated || Date.now(); }
+      if (!item.email && item.status === "active") item.status = "available";
+    }
+    if (input.dataset.licPlan) item.plan = input.value;
+    persist("Clé mise à jour"); render();
   }
 }
-function pnjList() {
-  const q = query.toLowerCase();
-  return db.config.pnj.filter((item) => `${item.name} ${item.model}`.toLowerCase().includes(q)).map(pedCard).join("");
-}
 db = load();
-if (!links().some((item) => item[0] === page)) page = "dash";
 render();
 </script>
 </body>
