@@ -1,9 +1,14 @@
 const { plans, readLicenses, writeLicenses, remain, normalizeIp, send } = require("../../lib/license-api");
 
+function localIp(ip) {
+  const value = normalizeIp(ip);
+  return value === "127.0.0.1" || value === "::1" || value === "localhost";
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return send(res, 204, {});
   if (req.method !== "POST") return send(res, 405, { ok: false, message: "Methode refusee." });
-  const body = req.body || {};
+  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
   const key = String(body.key || "").trim().toUpperCase();
   const licenses = await readLicenses();
   const item = licenses.find((entry) => entry.key === key);
@@ -17,10 +22,10 @@ module.exports = async function handler(req, res) {
     return send(res, 403, { ok: false, message: "Licence expiree." });
   }
   const ip = normalizeIp(req.headers["x-forwarded-for"] ? String(req.headers["x-forwarded-for"]).split(",")[0].trim() : req.socket.remoteAddress);
-  if (item.ip && normalizeIp(item.ip) !== ip) {
+  if (item.ip && !localIp(item.ip) && normalizeIp(item.ip) !== ip) {
     return send(res, 403, { ok: false, message: "IP verrouillee. Reinitialise-la sur le panel." });
   }
-  item.ip = item.ip || ip;
+  item.ip = !item.ip || localIp(item.ip) ? ip : item.ip;
   item.hostname = String(body.hostname || "").slice(0, 80);
   await writeLicenses(licenses);
   const plan = plans[item.plan] || [null, item.plan];
