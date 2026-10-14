@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /licenses/{key} {
+      allow get: if true;
+      allow list, create, update, delete: if request.auth != null
+        && request.auth.token.email == "ozona@configbase-fb263.firebaseapp.com";
+    }
+  }
+}

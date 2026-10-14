@@ -198,6 +198,9 @@
 <body>
 <div id="app"></div>
 <div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const I = {
   logo: '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>',
@@ -222,6 +225,15 @@ const WEATHER = ["EXTRASUNNY","CLEAR","CLOUDS","SMOG","FOGGY","OVERCAST","RAIN",
 const ANIMS = ["WORLD_HUMAN_CLIPBOARD","WORLD_HUMAN_COP_IDLES","WORLD_HUMAN_GUARD_STAND","WORLD_HUMAN_STAND_IMPATIENT","CODE_HUMAN_MEDIC_TIME_OF_DEATH"];
 const PLANS = { "7j": ["7 jours", 7, "price7"], "30j": ["30 jours", 30, "price30"], "3m": ["3 mois", 90, "price3m"], "1an": ["1 an", 365, "price1an"], lifetime: ["LifeTime", null, "priceLife"] };
 const DBKEY = "ozona-panel-final";
+const MANAGER_MAIL = "ozona@configbase-fb263.firebaseapp.com";
+firebase.initializeApp({
+  apiKey: "AIzaSyC8P1fMXakiCKjcvB1Jw6Lvr9KKXBnxU",
+  authDomain: "configbase-fb263.firebaseapp.com",
+  projectId: "configbase-fb263",
+  storageBucket: "configbase-fb263.firebasestorage.app",
+  messagingSenderId: "747872322242",
+  appId: "1:747872322242:web:82b833a7c78e32eb270e80"
+});
 const MANAGER_HASH = "9c7ab17aeeddca4608087299c902cbedf7dd312b93558760b4719ebf4f0b2bee";
 const CONFIG_PAGES = ["server","look","eco","world","jobs","pnj","system","logs"];
 const app = document.getElementById("app");
@@ -354,8 +366,55 @@ function syncLicenses() {
     body: JSON.stringify(payload)
   }).catch(() => {});
 }
+async function pushLicenses() {
+  if (!firebase.auth().currentUser) return;
+  const col = firebase.firestore().collection("licenses");
+  const snap = await col.get();
+  const keep = new Set((db.licenses || []).map((item) => item.key));
+  const batch = firebase.firestore().batch();
+  snap.forEach((doc) => { if (!keep.has(doc.id)) batch.delete(doc.ref); });
+  (db.licenses || []).forEach((item) => {
+    batch.set(col.doc(item.key), {
+      id: item.id,
+      key: item.key,
+      plan: item.plan || "30j",
+      status: item.status || "available",
+      email: item.email || "",
+      activated: item.activated || null,
+      ip: item.ip || ""
+    });
+  });
+  await batch.commit();
+}
+async function cloudSession(password) {
+  const auth = firebase.auth();
+  try {
+    await auth.signInWithEmailAndPassword(MANAGER_MAIL, password);
+  } catch (err) {
+    const code = err && err.code;
+    if (code !== "auth/user-not-found" && code !== "auth/invalid-credential" && code !== "auth/invalid-login-credentials") throw err;
+    await auth.createUserWithEmailAndPassword(MANAGER_MAIL, password);
+  }
+  const snap = await firebase.firestore().collection("licenses").get();
+  if (snap.empty) {
+    await pushLicenses();
+    return;
+  }
+  db.licenses = snap.docs.map((doc) => {
+    const data = doc.data();
+    return { id: data.id || Date.now(), key: data.key || doc.id, plan: data.plan || "30j", status: data.status || "available", email: data.email || "", ip: data.ip || "", activated: data.activated || null };
+  });
+  localStorage.setItem(DBKEY, JSON.stringify(db));
+  render();
+}
 function persist(message) {
   localStorage.setItem(DBKEY, JSON.stringify(db));
+  if (db.session && db.session.role === "manager") {
+    pushLicenses().catch(() => {
+      const note = document.getElementById("saved");
+      if (note) note.textContent = "Firebase refuse l'écriture. Publie les règles Firestore.";
+    });
+  }
   syncLicenses();
   const note = document.getElementById("saved");
   if (note) note.textContent = "Appliqué en direct, sans redémarrage.";
@@ -662,6 +721,11 @@ function submitAuth(form) {
   if (gate === "manager") {
     if (id.toLowerCase() !== db.manager.username || passHash(pass) !== db.manager.pass) { authError = "Identifiant ou mot de passe incorrect."; sfx("del"); render(); return; }
     db.session = { role: "manager" };
+    page = "dash";
+    localStorage.setItem(DBKEY, JSON.stringify(db));
+    sfx("nav");
+    cloudSession(pass).catch(() => { authError = "Firebase refuse la connexion. Vérifie les domaines autorisés."; render(); });
+    return;
   } else {
     const email = id.toLowerCase();
     const user = db.users.find((item) => item.email === email);
@@ -803,6 +867,8 @@ document.body.addEventListener("submit", (event) => {
     if (manager()) {
       if (current !== db.manager.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
       db.manager.pass = passHash(next);
+      const currentUser = firebase.auth().currentUser;
+      if (currentUser) currentUser.updatePassword(next).catch(() => {});
     } else {
       const user = client();
       if (!user || current !== user.pass) { toast("Mot de passe actuel incorrect"); sfx("del"); return; }
